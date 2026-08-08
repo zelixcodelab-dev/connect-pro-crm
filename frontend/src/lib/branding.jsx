@@ -3,15 +3,15 @@ import api from "./api";
 
 // Must mirror backend lib/whitelabel.DEFAULT_BRANDING.
 export const DEFAULT_BRANDING = {
-  app_name: "Edu Connect",
-  app_short: "Connect",
-  company_line: "Admissions & Finance Suite",
+  app_name: "Connect Pro - Zelix",
+  app_short: "Connect Pro",
+  company_line: "Customer Relationship Manager",
   logo_url: "/brand-logo.png",
   brand_color: "#C70000",
-  hero_title: "AdmissionOps,",
-  hero_accent: "Real-Time Tracker.",
-  hero_tagline: "The complete partner & admission management platform for education consultancies.",
-  eyebrow: "Admissions · Office Portal",
+  hero_title: "Close More,",
+  hero_accent: "Leads to Customers.",
+  hero_tagline: "The complete CRM to capture leads, track your pipeline and turn conversations into customers.",
+  eyebrow: "Sales · CRM Portal",
   currency: "INR",
 };
 

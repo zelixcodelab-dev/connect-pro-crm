@@ -11,30 +11,12 @@ import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import AppShell from "@/pages/AppShell";
 import Dashboard from "@/pages/Dashboard";
-import QuickEntry from "@/pages/QuickEntry";
-import Transactions from "@/pages/Transactions";
-import Accounts from "@/pages/Accounts";
-import Invoices from "@/pages/Invoices";
 import Clients from "@/pages/Clients";
-import Categories from "@/pages/Categories";
-import Settings from "@/pages/Settings";
-import Students from "@/pages/Students";
-import StudentDetail from "@/pages/StudentDetail";
-import Agents from "@/pages/Agents";
-import AgentDetail from "@/pages/AgentDetail";
 import ClientDetail from "@/pages/ClientDetail";
+import Settings from "@/pages/Settings";
 import Users from "@/pages/Users";
-import ExpenseRequests from "@/pages/ExpenseRequests";
-import PublicApplication from "@/pages/PublicApplication";
-import Colleges from "@/pages/Colleges";
-import AdmissionRevenue from "@/pages/AdmissionRevenue";
 import Leads from "@/pages/Leads";
-import StaffMembers from "@/pages/StaffMembers";
-import StaffStudents from "@/pages/StaffStudents";
-import Leave from "@/pages/Leave";
-import LinkedUserLedger from "@/pages/LinkedUserLedger";
 import Messages from "@/pages/Messages";
-import OfficeOverview from "@/pages/OfficeOverview";
 import Activity from "@/pages/Activity";
 import Branding from "@/pages/Branding";
 import PlatformConsole from "@/pages/PlatformConsole";
@@ -94,44 +76,10 @@ function PublicOnly({ children }) {
 // Module-level constants so the `roles` prop on PermGate doesn't allocate a
 // fresh array each render — keeps PermGate / its children stable.
 const SUPER_ADMIN_ONLY = Object.freeze(["super_admin"]);
-const USER_ONLY = Object.freeze(["user"]);
 const LEADS_ROLES = Object.freeze(["super_admin", "office_admin", "staff"]);
-const STAFF_ONLY = Object.freeze(["staff"]);
 const ADMIN_ROLES = Object.freeze(["super_admin", "office_admin"]);
 
-// Hostnames whose entire surface is just the public admission form. Comma-
-// separated env var, e.g. "apply.kmfoundation.online,admissions.example.com".
-// When window.location.hostname matches one of these we bypass auth + the
-// main router and mount only <PublicApplication /> — regardless of path.
-const PUBLIC_APPLY_HOSTS = (process.env.REACT_APP_PUBLIC_APPLY_HOSTS || "")
-  .split(",")
-  .map((h) => h.trim().toLowerCase())
-  .filter(Boolean);
-
-function isPublicApplyHost() {
-  if (typeof window === "undefined") return false;
-  const host = (window.location.hostname || "").toLowerCase();
-  return PUBLIC_APPLY_HOSTS.includes(host);
-}
-
-/** Standalone shell used when the app is being served from a public-apply
- * domain. No auth provider, no sidebar, no other routes — just the form,
- * regardless of pathname. Query strings (e.g. ?ref=…) still pass through.
- * (PublicApplication mounts its own <Toaster> so we don't add one here.) */
-function PublicApplyOnly() {
-  return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="*" element={<PublicApplication />} />
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
-  );
-}
-
 export default function App() {
-  if (isPublicApplyHost()) return <PublicApplyOnly />;
   return (
     <ThemeProvider>
       <BrandingProvider>
@@ -139,7 +87,6 @@ export default function App() {
         <BrandingSync />
         <BrowserRouter>
         <Routes>
-          <Route path="/apply" element={<PublicApplication />} />
           <Route path="/login" element={<PublicOnly><AuthPage mode="login" /></PublicOnly>} />
           <Route path="/register" element={<PublicOnly><AuthPage mode="register" /></PublicOnly>} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -147,32 +94,14 @@ export default function App() {
           <Route path="/platform" element={<PlatformProtected><PlatformConsole /></PlatformProtected>} />
           <Route element={<Protected><AppShell /></Protected>}>
             <Route path="/" element={<PermGate page="overview"><Dashboard /></PermGate>} />
-            <Route path="/quick-entry" element={<PermGate page="quick_entry"><QuickEntry /></PermGate>} />
-            <Route path="/transactions" element={<PermGate page="transactions"><Transactions /></PermGate>} />
-            <Route path="/accounts" element={<PermGate page="accounts"><Accounts /></PermGate>} />
-            <Route path="/invoices" element={<Invoices />} />
-            <Route path="/clients" element={<PermGate page="clients"><Clients pageScope="clients" /></PermGate>} />
-            <Route path="/employees" element={<PermGate page="clients"><Clients pageScope="employees" /></PermGate>} />
-            <Route path="/clients/:id" element={<PermGate page="clients"><ClientDetail /></PermGate>} />
-            <Route path="/students" element={<PermGate page="students"><Students /></PermGate>} />
-            <Route path="/my-students" element={<PermGate roles={STAFF_ONLY}><StaffStudents /></PermGate>} />
-            <Route path="/students/:id" element={<PermGate page="students"><StudentDetail /></PermGate>} />
-            <Route path="/colleges" element={<PermGate roles={SUPER_ADMIN_ONLY}><Colleges /></PermGate>} />
-            <Route path="/admission-revenue" element={<PermGate roles={SUPER_ADMIN_ONLY}><AdmissionRevenue /></PermGate>} />
             <Route path="/leads" element={<PermGate roles={LEADS_ROLES} page="leads"><Leads /></PermGate>} />
-            <Route path="/staff" element={<PermGate roles={SUPER_ADMIN_ONLY}><StaffMembers /></PermGate>} />
-            <Route path="/office-overview" element={<PermGate roles={SUPER_ADMIN_ONLY}><OfficeOverview /></PermGate>} />
-            <Route path="/leave" element={<PermGate roles={LEADS_ROLES} page="leave"><Leave /></PermGate>} />
-            <Route path="/agents" element={<Agents />} />
-            <Route path="/agents/detail" element={<AgentDetail />} />
-            <Route path="/categories" element={<Categories />} />
+            <Route path="/clients" element={<PermGate page="clients"><Clients pageScope="clients" /></PermGate>} />
+            <Route path="/clients/:id" element={<PermGate page="clients"><ClientDetail /></PermGate>} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/messages/:id" element={<Messages />} />
             <Route path="/branding" element={<PermGate roles={SUPER_ADMIN_ONLY}><Branding /></PermGate>} />
             <Route path="/settings" element={<PermGate page="settings"><Settings /></PermGate>} />
             <Route path="/users" element={<PermGate roles={SUPER_ADMIN_ONLY}><Users /></PermGate>} />
-            <Route path="/my-ledger" element={<PermGate roles={USER_ONLY}><LinkedUserLedger /></PermGate>} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/messages/:id" element={<Messages />} />
-            <Route path="/expense-requests" element={<PermGate page="expense_requests"><ExpenseRequests /></PermGate>} />
             <Route path="/activity" element={<PermGate roles={ADMIN_ROLES}><Activity /></PermGate>} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

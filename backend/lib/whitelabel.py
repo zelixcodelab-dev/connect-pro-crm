@@ -17,18 +17,18 @@ _log = logging.getLogger("whitelabel")
 # --------------------------------------------------------------------------
 # Branding
 # --------------------------------------------------------------------------
-DEFAULT_APP_NAME = os.environ.get("DEFAULT_APP_NAME", "Edu Connect")
+DEFAULT_APP_NAME = os.environ.get("DEFAULT_APP_NAME", "Connect Pro - Zelix")
 
 DEFAULT_BRANDING = {
     "app_name": DEFAULT_APP_NAME,
-    "app_short": "Connect",
-    "company_line": "Admissions & Finance Suite",
-    "logo_url": "/brand-logo.png",        # default Edu Connect logo (public/)
+    "app_short": "Connect Pro",
+    "company_line": "Customer Relationship Manager",
+    "logo_url": "/brand-logo.png",        # default Connect Pro logo (public/)
     "brand_color": "#C70000",             # crimson (matches the base theme)
-    "hero_title": "AdmissionOps,",
-    "hero_accent": "Real-Time Tracker.",
-    "hero_tagline": "The complete partner & admission management platform for education consultancies.",
-    "eyebrow": "Admissions · Office Portal",
+    "hero_title": "Close More,",
+    "hero_accent": "Leads to Customers.",
+    "hero_tagline": "The complete CRM to capture leads, track your pipeline and turn conversations into customers.",
+    "eyebrow": "Sales · CRM Portal",
     "currency": "INR",
 }
 
@@ -55,23 +55,10 @@ MODULE_CATALOG = [
     {"key": "overview", "label": "Overview / Dashboard", "locked": True},
     {"key": "settings", "label": "Settings", "locked": True},
     {"key": "users", "label": "Team & Permissions", "locked": True},
-    {"key": "quick_entry", "label": "Quick Entry"},
-    {"key": "transactions", "label": "Transactions"},
-    {"key": "accounts", "label": "Accounts"},
-    {"key": "invoices", "label": "Invoicing"},
-    {"key": "clients", "label": "Clients & Staff"},
-    {"key": "students", "label": "Students & Fees"},
     {"key": "leads", "label": "CRM / Leads"},
-    {"key": "leave", "label": "Leave Management"},
-    {"key": "expense_requests", "label": "Expense Approvals"},
-    {"key": "colleges", "label": "Colleges"},
-    {"key": "admission_revenue", "label": "Admission Revenue"},
-    {"key": "agents", "label": "Sub-agent Ledger"},
+    {"key": "clients", "label": "Contacts"},
     {"key": "messages", "label": "Messages"},
     {"key": "activity", "label": "Activity Log"},
-    {"key": "categories", "label": "Categories"},
-    {"key": "office_overview", "label": "Office Overview"},
-    {"key": "staff", "label": "Staff Directory"},
 ]
 
 ALL_MODULE_KEYS = [m["key"] for m in MODULE_CATALOG]

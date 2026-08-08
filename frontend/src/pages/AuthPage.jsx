@@ -7,7 +7,7 @@ import BrandMark from "@/components/BrandMark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Sun, Moon, Sparkle, ShieldCheck, ChartBar, GraduationCap } from "@phosphor-icons/react";
+import { ArrowRight, Sun, Moon, Sparkle, ShieldCheck, ChartBar, Target } from "@phosphor-icons/react";
 
 export default function AuthPage({ mode }) {
   const isLogin = mode === "login";
@@ -29,7 +29,7 @@ export default function AuthPage({ mode }) {
     if (ok) nav("/");
   };
 
-  const appName = branding?.app_name || "Edu Connect";
+  const appName = branding?.app_name || "Connect Pro - Zelix";
   const appShort = branding?.app_short || appName;
 
   return (
@@ -51,7 +51,7 @@ export default function AuthPage({ mode }) {
             {branding?.logo_url ? (
               <img src={branding.logo_url} alt={appName} className="w-9 h-9 object-contain" />
             ) : (
-              <GraduationCap size={26} weight="fill" className="text-white" />
+              <Target size={26} weight="fill" className="text-white" />
             )}
           </div>
           <div className="flex flex-col">
@@ -72,7 +72,7 @@ export default function AuthPage({ mode }) {
             {branding?.hero_tagline}
           </p>
           <ul className="pt-2 space-y-3 text-sm text-white/90">
-            <li className="flex items-center gap-3"><GraduationCap size={18} weight="duotone" /> Admissions, fees & student CRM</li>
+            <li className="flex items-center gap-3"><Target size={18} weight="duotone" /> Lead capture & pipeline tracking</li>
             <li className="flex items-center gap-3"><ShieldCheck size={18} weight="duotone" /> Encrypted, role-based access</li>
             <li className="flex items-center gap-3"><ChartBar size={18} weight="duotone" /> Real-time dashboards & reports</li>
           </ul>

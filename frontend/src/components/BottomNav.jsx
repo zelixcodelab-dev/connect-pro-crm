@@ -5,20 +5,11 @@ import { canView } from "@/lib/perm";
 import { navigateToApply, linkedUserRef } from "@/lib/applyUrl";
 import {
   House,
-  Student,
   UsersThree,
-  Receipt,
   Plus,
   X,
-  Wallet,
-  Buildings,
-  ClipboardText,
-  CurrencyCircleDollar,
-  ReceiptX,
-  Coins,
   ChatCircleDots,
   Target,
-  CalendarCheck,
 } from "@phosphor-icons/react";
 
 // Bottom nav side items, ranked. We render up to 4 visible items + the center FAB.
@@ -26,71 +17,19 @@ import {
 //   roles → if provided, item is only visible to listed roles
 const ALL_SIDE_NAV = [
   { to: "/", label: "Home", icon: House, end: true, tid: "bottom-nav-home", perm: "overview" },
-  { to: "/my-ledger", label: "My ledger", icon: Coins, tid: "bottom-nav-my-ledger", roles: ["user"] },
+  { to: "/leads", label: "Leads", icon: Target, tid: "bottom-nav-leads", perm: "leads" },
   { to: "/messages", label: "Messages", icon: ChatCircleDots, tid: "bottom-nav-messages" },
-  { to: "/students", label: "Students", icon: Student, tid: "bottom-nav-students", perm: "students" },
-  { to: "/my-students", label: "Students", icon: Student, tid: "bottom-nav-my-students", roles: ["staff"] },
-  { to: "/clients", label: "Clients", icon: UsersThree, tid: "bottom-nav-clients", perm: "clients" },
-  { to: "/invoices", label: "Invoices", icon: Receipt, tid: "bottom-nav-invoices", roles: ["super_admin"] },
-  { to: "/transactions", label: "Transactions", icon: CurrencyCircleDollar, tid: "bottom-nav-transactions", perm: "transactions" },
-  { to: "/expense-requests", label: "Expenses", icon: ReceiptX, tid: "bottom-nav-expenses", perm: "expense_requests" },
+  { to: "/clients", label: "Contacts", icon: UsersThree, tid: "bottom-nav-clients", perm: "clients" },
 ];
 
-// Staff get a fixed, CRM-focused bottom bar: Home · My Leads · [＋] · Messages · Leave
+// Staff get a fixed, CRM-focused bottom bar: Home · My Leads · [＋] · Messages
 const STAFF_SIDE_NAV = [
   { to: "/", label: "Home", icon: House, end: true, tid: "bottom-nav-home" },
   { to: "/leads", label: "My Leads", icon: Target, tid: "bottom-nav-my-leads" },
   { to: "/messages", label: "Messages", icon: ChatCircleDots, tid: "bottom-nav-messages" },
-  { to: "/leave", label: "Leave", icon: CalendarCheck, tid: "bottom-nav-leave" },
 ];
 
 const ALL_QUICK_ACTIONS = [
-  {
-    label: "Add transaction",
-    sub: "Log a credit or debit",
-    icon: Wallet,
-    color: "from-emerald-500 to-emerald-600",
-    href: "/quick-entry",
-    tid: "qa-add-transaction",
-    perm: "quick_entry",
-  },
-  {
-    label: "Add student",
-    sub: "New enrollment",
-    icon: Student,
-    color: "from-orange-500 to-amber-600",
-    href: "/students?new=1",
-    tid: "qa-add-student",
-    perm: "students",
-  },
-  {
-    label: "Paste application",
-    sub: "Parse raw inquiry text",
-    icon: ClipboardText,
-    color: "from-violet-500 to-fuchsia-600",
-    href: "/students?paste=1",
-    tid: "qa-paste-application",
-    perm: "students",
-  },
-  {
-    label: "Add college",
-    sub: "Master catalogue entry",
-    icon: Buildings,
-    color: "from-sky-500 to-blue-600",
-    href: "/colleges?add=1",
-    tid: "qa-add-college",
-    roles: ["super_admin"],
-  },
-  {
-    label: "Expense request",
-    sub: "Submit for approval",
-    icon: ReceiptX,
-    color: "from-rose-500 to-pink-600",
-    href: "/expense-requests?new=1",
-    tid: "qa-add-expense-request",
-    perm: "expense_requests",
-    roles: ["office_admin", "user"],
-  },
   {
     label: "Add lead",
     sub: "New prospect",
@@ -98,17 +37,16 @@ const ALL_QUICK_ACTIONS = [
     color: "from-amber-500 to-orange-600",
     href: "/leads?new=1",
     tid: "qa-add-lead",
-    roles: ["staff"],
     perm: "leads",
   },
   {
-    label: "Add student",
-    sub: "Credit to you",
-    icon: Student,
-    color: "from-emerald-500 to-emerald-600",
-    href: "/my-students?add=1",
-    tid: "qa-staff-add-student",
-    roles: ["staff"],
+    label: "Add contact",
+    sub: "New contact record",
+    icon: UsersThree,
+    color: "from-sky-500 to-blue-600",
+    href: "/clients?new=1",
+    tid: "qa-add-contact",
+    perm: "clients",
   },
 ];
 

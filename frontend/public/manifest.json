@@ -1,7 +1,7 @@
 {
-  "name": "Edu Connect",
-  "short_name": "Edu Connect",
-  "description": "Admissions, fees & student management platform.",
+  "name": "Connect Pro - Zelix",
+  "short_name": "Connect Pro",
+  "description": "Capture leads, track your pipeline and close more deals.",
   "lang": "en",
   "dir": "ltr",
   "scope": "/",
@@ -10,7 +10,7 @@
   "orientation": "any",
   "theme_color": "#C70000",
   "background_color": "#ffffff",
-  "categories": ["business", "finance", "productivity"],
+  "categories": ["business", "productivity", "sales"],
   "icons": [
     {
       "src": "/pwa-icon-192.png",
@@ -33,10 +33,10 @@
   ],
   "shortcuts": [
     {
-      "name": "Quick entry",
-      "short_name": "Quick entry",
-      "description": "Log a credit or debit in one tap",
-      "url": "/quick-entry",
+      "name": "Add lead",
+      "short_name": "Add lead",
+      "description": "Capture a new prospect in one tap",
+      "url": "/leads?new=1",
       "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192" }]
     }
   ]

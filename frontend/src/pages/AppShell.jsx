@@ -11,11 +11,9 @@ import NotificationsBell from "@/components/NotificationsBell";
 import BottomNav from "@/components/BottomNav";
 import InstallPrompt from "@/components/InstallPrompt";
 import {
-  House, Receipt, Wallet, FileText, UsersThree, Tag, Gear, SignOut, PlusCircle,
-  Student, Notebook, Sun, Moon, List as ListIcon, MagnifyingGlass,
-  ShieldCheck, ReceiptX, Buildings, Coins, ChatCircleDots, ArrowUpRight,
-  Target, IdentificationBadge, CalendarCheck, Handshake, UserCircle, CaretRight, FolderSimplePlus,
-  ClockCounterClockwise, Palette,
+  House, Gear, SignOut, Sun, Moon, List as ListIcon, MagnifyingGlass,
+  ShieldCheck, ChatCircleDots, ArrowUpRight,
+  Target, Handshake, UserCircle, ClockCounterClockwise, Palette,
 } from "@phosphor-icons/react";
 
 // Sidebar nav with role gating.
@@ -25,82 +23,32 @@ import {
 //     Omit (or set falsy) to hide the item from "user" role accounts.
 const ALL_NAV = [
   { to: "/", label: "Overview", icon: House, end: true, tid: "nav-overview", perm: "overview", module: "overview", userRoleAllowed: true },
-  { to: "/quick-entry", label: "Quick entry", icon: PlusCircle, tid: "nav-quick-entry", perm: "quick_entry", module: "quick_entry", userRoleAllowed: true },
-  { to: "/transactions", label: "Transactions", icon: Receipt, tid: "nav-transactions", perm: "transactions", module: "transactions", userRoleAllowed: true },
-  { to: "/accounts", label: "Accounts", icon: Wallet, tid: "nav-accounts", perm: "accounts", module: "accounts", userRoleAllowed: true },
-  { to: "/my-ledger", label: "My ledger", icon: Coins, tid: "nav-my-ledger", roles: ["user"], userRoleAllowed: true },
+  { to: "/leads", label: "CRM / Leads", icon: Target, tid: "nav-leads", roles: ["super_admin", "office_admin", "staff"], perm: "leads", module: "leads", userRoleAllowed: false },
+  { to: "/clients", label: "Contacts", icon: Handshake, tid: "nav-clients", roles: ["super_admin", "office_admin"], perm: "clients", module: "clients" },
   { to: "/messages", label: "Messages", icon: ChatCircleDots, tid: "nav-messages", module: "messages", userRoleAllowed: true },
-  { to: "/invoices", label: "Invoices", icon: FileText, tid: "nav-invoices", roles: ["super_admin"], module: "invoices" },
-  { to: "/employees", label: "Employees", icon: UsersThree, tid: "nav-employees", roles: ["super_admin"], perm: "clients", module: "clients" },
-  { to: "/clients", label: "Clients", icon: Handshake, tid: "nav-clients", roles: ["super_admin"], perm: "clients", module: "clients" },
-  { to: "/employees", label: "Staff", icon: IdentificationBadge, tid: "nav-office-staff", roles: ["office_admin"], perm: "clients", module: "clients" },
-  { to: "/students", label: "Students", icon: Student, tid: "nav-students", perm: "students", module: "students" },
-  { to: "/my-students", label: "Students", icon: Student, tid: "nav-my-students", roles: ["staff"], module: "students" },
-  { to: "/leads", label: "CRM", icon: Target, tid: "nav-leads", roles: ["super_admin", "office_admin", "staff"], perm: "leads", module: "leads", userRoleAllowed: false },
-  { to: "/office-overview", label: "Overview", icon: House, tid: "nav-office-overview", roles: ["super_admin"], module: "office_overview" },
-  { to: "/staff", label: "Staff", icon: IdentificationBadge, tid: "nav-staff", roles: ["super_admin"], module: "staff" },
-  { to: "/leave", label: "Leave", icon: CalendarCheck, tid: "nav-leave", roles: ["super_admin", "office_admin", "staff"], perm: "leave", module: "leave" },
-  { to: "/colleges", label: "Colleges", icon: Buildings, tid: "nav-colleges", roles: ["super_admin"], module: "colleges" },
-  { to: "/admission-revenue", label: "Admission Revenue", icon: Coins, tid: "nav-admission-revenue", roles: ["super_admin"], module: "admission_revenue" },
-  { to: "/agents", label: "Ledger", icon: Notebook, tid: "nav-ledger", roles: ["super_admin"], module: "agents" },
-  { to: "/expense-requests", label: "Approvals", icon: ReceiptX, tid: "nav-approvals", roles: ["super_admin"], module: "expense_requests" },
-  { to: "/expense-requests", label: "Office expenses", icon: ReceiptX, tid: "nav-office-expenses", roles: ["office_admin"], perm: "expense_requests", module: "expense_requests" },
-  { to: "/expense-requests", label: "Expense requests", icon: ReceiptX, tid: "nav-user-expenses", roles: ["user"], userRoleAllowed: true, perm: "expense_requests", module: "expense_requests" },
   { to: "/users", label: "Team", icon: ShieldCheck, tid: "nav-users", roles: ["super_admin"], module: "users" },
   { to: "/branding", label: "Customize", icon: Palette, tid: "nav-branding", roles: ["super_admin"] },
   { to: "/activity", label: "Activity", icon: ClockCounterClockwise, tid: "nav-activity", roles: ["super_admin", "office_admin"], module: "activity" },
-  { to: "/categories", label: "Categories", icon: Tag, tid: "nav-categories", roles: ["super_admin"], module: "categories" },
   { to: "/settings", label: "Settings", icon: Gear, tid: "nav-settings", perm: "settings", module: "settings", userRoleAllowed: true },
 ];
 
 // path → module key, for blocking direct URL access to a disabled module.
 const PATH_MODULE = {
-  "/quick-entry": "quick_entry",
-  "/transactions": "transactions",
-  "/accounts": "accounts",
   "/messages": "messages",
-  "/invoices": "invoices",
-  "/employees": "clients",
   "/clients": "clients",
-  "/students": "students",
-  "/my-students": "students",
   "/leads": "leads",
-  "/office-overview": "office_overview",
-  "/staff": "staff",
-  "/leave": "leave",
-  "/colleges": "colleges",
-  "/admission-revenue": "admission_revenue",
-  "/agents": "agents",
-  "/expense-requests": "expense_requests",
   "/activity": "activity",
-  "/categories": "categories",
 };
 
 const PAGE_TITLES = {
   "/": "Overview",
-  "/quick-entry": "Quick entry",
-  "/transactions": "Transactions",
-  "/accounts": "Accounts",
-  "/my-ledger": "My ledger",
   "/messages": "Messages",
-  "/invoices": "Invoices",
-  "/clients": "Clients",
-  "/employees": "Employees",
-  "/students": "Students",
-  "/my-students": "Students",
-  "/leads": "CRM",
-  "/office-overview": "Office overview",
-  "/staff": "Staff",
-  "/leave": "Leave",
-  "/colleges": "Colleges",
-  "/admission-revenue": "Admission Revenue",
-  "/agents": "Sub-agent Ledger",
-  "/categories": "Categories",
+  "/clients": "Contacts",
+  "/leads": "CRM / Leads",
   "/settings": "Settings",
   "/users": "Team & approvals",
   "/branding": "Customize",
   "/activity": "Activity",
-  "/expense-requests": "Expense requests",
 };
 
 function initialsOf(name) {
@@ -109,46 +57,16 @@ function initialsOf(name) {
   return (parts[0]?.[0] || "") + (parts[1]?.[0] || "");
 }
 
-// Super Admin gets a grouped sidebar with collapsible sections (Accounts /
-// Office / Add details). Every other role keeps a single flat list.
-const GROUP_ROUTES = {
-  accounts: ["/accounts", "/transactions", "/agents", "/invoices"],
-  office: ["/office-overview", "/employees", "/leads", "/staff", "/leave"],
-  details: ["/colleges", "/categories"],
-};
-
-function buildSections(navItems, role) {
-  const byTo = {};
-  navItems.forEach((i) => { byTo[i.to] = i; });
-  const pick = (tos) => tos.map((t) => byTo[t]).filter(Boolean);
-  if (role !== "super_admin") {
-    return [{ type: "items", label: "Workspace", items: navItems }];
-  }
-  return [
-    { type: "items", label: "Workspace", items: pick(["/", "/quick-entry", "/admission-revenue"]) },
-    { type: "group", key: "accounts", label: "Accounts", icon: Wallet, items: pick(GROUP_ROUTES.accounts) },
-    { type: "items", items: pick(["/messages", "/clients", "/students"]) },
-    { type: "group", key: "office", label: "Office", icon: Buildings, items: pick(GROUP_ROUTES.office) },
-    { type: "group", key: "details", label: "Add details", icon: FolderSimplePlus, items: pick(GROUP_ROUTES.details) },
-    { type: "items", items: pick(["/users", "/branding", "/expense-requests", "/activity", "/settings"]) },
-  ].filter((s) => s.items.length > 0);
+// Single flat sidebar list for every role — the CRM surface is small enough
+// that collapsible groups add no value.
+function buildSections(navItems) {
+  return [{ type: "items", label: "Workspace", items: navItems }];
 }
 
 function SidebarContent({ onItemClick, user, onLogout }) {
   const role = user?.role;
   const { branding } = useBranding();
   const enabled = user?.enabled_modules;
-  // Groups start COLLAPSED — click the header to expand. The group that
-  // contains the current page opens automatically so the active link is
-  // never hidden.
-  const [collapsed, setCollapsed] = React.useState(() => {
-    const path = typeof window !== "undefined" ? window.location.pathname : "";
-    const init = {};
-    for (const [key, routes] of Object.entries(GROUP_ROUTES)) {
-      init[key] = !routes.some((t) => path === t || path.startsWith(`${t}/`));
-    }
-    return init;
-  });
   const navItems = ALL_NAV.filter((i) => {
     if (i.roles && !i.roles.includes(role)) return false;
     if (i.perm && !canView(user, i.perm)) return false;
@@ -181,50 +99,23 @@ function SidebarContent({ onItemClick, user, onLogout }) {
       <div className="px-6 py-5 flex items-center gap-3 border-b border-[hsl(var(--sidebar-border))]">
         <BrandMark size={44} className="shadow-sm" />
         <div className="flex flex-col min-w-0">
-          <span className="font-display text-base font-semibold tracking-tight text-[hsl(var(--sidebar-fg))] truncate">{branding?.app_name || "Edu Connect"}</span>
+          <span className="font-display text-base font-semibold tracking-tight text-[hsl(var(--sidebar-fg))] truncate">{branding?.app_name || "Connect Pro - Zelix"}</span>
           <span className="text-[10px] uppercase tracking-[0.16em] text-[hsl(var(--sidebar-muted))] truncate">{branding?.company_line || ""}</span>
         </div>
       </div>
 
       {/* Nav */}
       <nav className="px-3 py-6 flex-1 space-y-0.5 overflow-y-auto" data-testid="sidebar-nav">
-        {buildSections(navItems, role).map((section, idx) => {
-          if (section.type === "group") {
-            const open = !collapsed[section.key];
-            return (
-              <div key={section.key} className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => setCollapsed((c) => ({ ...c, [section.key]: !c[section.key] }))}
-                  data-testid={`nav-group-${section.key}`}
-                  aria-expanded={open}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-[hsl(var(--sidebar-fg))] hover:bg-orange-500/10 transition-all"
-                >
-                  <CaretRight size={13} weight="bold" className={`shrink-0 text-[hsl(var(--sidebar-muted))] transition-transform duration-200 ${open ? "rotate-90" : ""}`} />
-                  <section.icon size={17} weight="regular" className="shrink-0" />
-                  <span className="flex-1 text-left">{section.label}</span>
-                </button>
-                {open && (
-                  <div className="mt-0.5 space-y-0.5">
-                    {section.items.map((item) => renderLink(item, true))}
-                  </div>
-                )}
-              </div>
-            );
-          }
-          return (
-            <div key={`sec-${idx}`} className={idx > 0 ? "pt-3" : ""}>
-              {section.label ? (
-                <p className="px-3 mb-2 text-[10px] uppercase tracking-[0.18em] text-[hsl(var(--sidebar-muted))] font-semibold">{section.label}</p>
-              ) : (
-                <div className="mx-3 mb-2.5 border-t border-[hsl(var(--sidebar-border))]/60" aria-hidden />
-              )}
-              <div className="space-y-0.5">
-                {section.items.map((item) => renderLink(item, false))}
-              </div>
+        {buildSections(navItems).map((section, idx) => (
+          <div key={`sec-${idx}`} className={idx > 0 ? "pt-3" : ""}>
+            {section.label && (
+              <p className="px-3 mb-2 text-[10px] uppercase tracking-[0.18em] text-[hsl(var(--sidebar-muted))] font-semibold">{section.label}</p>
+            )}
+            <div className="space-y-0.5">
+              {section.items.map((item) => renderLink(item, false))}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </nav>
 
       {/* Footer: user info + sign out (mobile drawer only — hidden on desktop where topbar handles it) */}
@@ -289,7 +180,7 @@ export default function AppShell() {
     || PAGE_TITLES[location.pathname]
     || (location.pathname.startsWith("/students/") ? "Student" : "")
     || (location.pathname.startsWith("/agents/") ? "Agent detail" : "")
-    || (branding?.app_name || "Edu Connect");
+    || (branding?.app_name || "Connect Pro - Zelix");
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 

@@ -12,7 +12,40 @@ from db import db, gdb, set_default_tenant
 from auth_lib import hash_password, gen_id, now_iso
 from lib.whitelabel import (
     DEFAULT_CATEGORIES, provision_tenant, DEFAULT_APP_NAME, ensure_tenant_admin,
+    DEFAULT_BRANDING, DEFAULT_ENABLED_MODULES,
 )
+
+
+# Fingerprints of the pre-CRM (education "Edu Connect") default branding. Any
+# tenant still carrying these was never customised by a reseller, so it's safe
+# to migrate it to the new "Connect Pro" CRM defaults in place.
+_STALE_BRAND_MARKERS = {
+    "app_name": "Edu Connect",
+    "company_line": "Admissions & Finance Suite",
+    "hero_title": "AdmissionOps,",
+}
+
+
+async def _rebrand_stale_tenants() -> None:
+    """One-time, idempotent white-label migration: reset unconfigured
+    education-default tenants to the new CRM defaults (branding, name,
+    enabled modules). Reseller-customised tenants are left untouched."""
+    async for t in gdb.tenants.find({}):
+        b = t.get("branding") or {}
+        is_stale = (
+            t.get("name") == "Edu Connect"
+            or any(b.get(k) == v for k, v in _STALE_BRAND_MARKERS.items())
+        )
+        if not is_stale:
+            continue
+        await gdb.tenants.update_one(
+            {"id": t["id"]},
+            {"$set": {
+                "name": DEFAULT_APP_NAME,
+                "branding": dict(DEFAULT_BRANDING),
+                "enabled_modules": list(DEFAULT_ENABLED_MODULES),
+            }},
+        )
 
 
 async def seed_user_defaults(user_id: str) -> None:
@@ -69,6 +102,7 @@ async def seed_platform_and_default_tenant() -> None:
     existing = await gdb.tenants.find_one({}, sort=[("created_at", 1)])
     if existing:
         set_default_tenant(existing["id"])
+        await _rebrand_stale_tenants()
         try:
             await ensure_tenant_admin(
                 existing,
