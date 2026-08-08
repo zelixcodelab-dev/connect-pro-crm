@@ -1,9 +1,22 @@
-# PRD — White-Label Multi-Tenant CRM ("Edu Connect")
+# PRD — White-Label Multi-Tenant CRM ("Connect Pro - Zelix")
 
 ## Original Problem Statement
 Clone/port a CRM web app to resell to other companies. Remove all original branding
-(FinFlow/KM), default to "Edu Connect", and add a Platform Owner super-dashboard to
-customise the app per company: access/permissions, logo, app name, enabled modules, etc.
+(FinFlow/KM), add a Platform Owner super-dashboard to customise the app per company
+(access/permissions, logo, app name, enabled modules). LATEST (2026-06): "Separate the
+CRM from this web app to sell only CRM web app" — transform the app IN PLACE into a
+CRM-only product (drop the education/finance modules), keep the multi-tenant white-label
+Platform Owner dashboard, and rebrand the default to "Connect Pro - Zelix".
+
+## Product Scope (CRM-only)
+Exposed modules ONLY: Overview/Dashboard, CRM / Leads, Contacts (formerly Clients),
+Messages, Activity Log, Team/Users, Settings — plus the Customize (branding) page and
+the Platform Console. All education/finance modules (Transactions, Accounts, Invoices,
+Students, Colleges, Admission Revenue, Sub-agent Ledger, Leave, Expense Approvals, Staff,
+Office Overview, Categories, Quick Entry) are removed from the tenant surface (routes
+redirect home; not in nav; not in the platform module catalog). Backend routers for those
+areas remain mounted but are dormant/unreachable from the CRM UI (kept to avoid breaking
+interdependencies; can be pruned later if desired).
 
 ## Core Requirements
 - Port uploaded zip codebase into the environment. (DONE)
@@ -92,7 +105,21 @@ customise the app per company: access/permissions, logo, app name, enabled modul
   Github + redeploy of BOTH frontend (public assets) and backend (branding default).
 
 ## Backlog / Remaining (P1/P2)
+- 2026-06: **CRM-only transformation + "Connect Pro - Zelix" rebrand.** Trimmed backend
+  `MODULE_CATALOG` + `DEFAULT_ENABLED_MODULES` to the 7 CRM keys (overview, settings, users,
+  leads, clients, messages, activity); rewrote the Overview dashboard (`Dashboard.jsx`) to a
+  CRM view (lead KPIs, funnel, recent leads + recent contacts); trimmed `App.js` routes,
+  `AppShell.jsx` sidebar and `BottomNav.jsx` to the CRM surface; rebranded defaults in
+  `whitelabel.py` + `branding.jsx` + `public/index.html` + `manifest.json` + AuthPage hero.
+  Added idempotent startup migration `_rebrand_stale_tenants()` in `seed.py` that resets
+  unconfigured education-default tenants (fingerprint: name "Edu Connect" / old hero /
+  "Admissions & Finance Suite") to the new CRM defaults. Verified by testing_agent: 100%
+  frontend pass — authenticated dashboard renders, sidebar shows only 7 CRM items, removed
+  routes redirect to /, platform module catalog shows only CRM modules, login hero + tab
+  title show "Connect Pro - Zelix". "Contacts" label used for the Clients module.
 - P1: Wire real integration keys when available — Resend (email), VAPID (web push),
   S3 (file upload), WhatsApp. Currently mocked/bypassed.
+- P2: Optionally prune the dormant education/finance backend routers + page files for a
+  smaller codebase (currently kept, just unreachable from the CRM UI).
 - P2: External DB capacity — user's Railway free-tier MongoDB is out of disk space
   (infrastructure limit, not a code issue). User must upgrade/clean up for full functionality.
