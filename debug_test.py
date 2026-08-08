@@ -1,7 +1,7 @@
 """Debug the 4 failed tests"""
 import requests
 
-BASE_URL = "https://saas-customizer.preview.emergentagent.com"
+BASE_URL = "https://white-label-crm-5.preview.emergentagent.com"
 
 # First, get tokens
 print("Getting tokens...")

@@ -7,7 +7,7 @@ import json
 from typing import Dict, Optional
 
 # Base URL from frontend/.env
-BASE_URL = "https://saas-customizer.preview.emergentagent.com"
+BASE_URL = "https://white-label-crm-5.preview.emergentagent.com"
 
 # Test credentials
 PLATFORM_OWNER = {
