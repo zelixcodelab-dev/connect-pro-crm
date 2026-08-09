@@ -21,6 +21,7 @@ import Activity from "@/pages/Activity";
 import Branding from "@/pages/Branding";
 import PlatformConsole from "@/pages/PlatformConsole";
 import PermGate from "@/components/PermGate";
+import { PipelineProvider } from "@/lib/pipeline";
 
 // Keeps the live theme in sync with the signed-in company. On logout it
 // falls back to the public default branding.
@@ -92,7 +93,7 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/platform" element={<PlatformProtected><PlatformConsole /></PlatformProtected>} />
-          <Route element={<Protected><AppShell /></Protected>}>
+          <Route element={<Protected><PipelineProvider><AppShell /></PipelineProvider></Protected>}>
             <Route path="/" element={<PermGate page="overview"><Dashboard /></PermGate>} />
             <Route path="/leads" element={<PermGate roles={LEADS_ROLES} page="leads"><Leads /></PermGate>} />
             <Route path="/clients" element={<PermGate page="clients"><Clients pageScope="clients" /></PermGate>} />

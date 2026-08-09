@@ -1,6 +1,6 @@
 // Shared lead pipeline metadata + datetime helpers for the Leads CRM.
 
-export const LEAD_STATUSES = [
+export let LEAD_STATUSES = [
   "new",
   "not_connected",
   "interested",
@@ -13,6 +13,10 @@ export const LEAD_STATUSES = [
   "not_turned",
   "lost",
 ];
+
+// Full canonical order (never changes) — used where every stage must appear
+// regardless of the admin's show/hide choices.
+export const CANONICAL_LEAD_STATUSES = [...LEAD_STATUSES];
 
 export const LEAD_STATUS_META = {
   new: { label: "New", cls: "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" },
@@ -55,6 +59,28 @@ export function sourceLabel(v) {
 
 export function statusLabel(v) {
   return LEAD_STATUS_META[v]?.label || v || "—";
+}
+
+// Applied at runtime from the platform owner's global pipeline config
+// (GET /api/pipeline). Renames stage labels in-place, reorders the exported
+// visible LEAD_STATUSES list, and records which stages are hidden. Keys never
+// change, so all pipeline automations keep working.
+export function hydratePipeline(stages) {
+  if (!Array.isArray(stages) || stages.length === 0) return;
+  const visible = [];
+  stages.forEach((s) => {
+    const k = s?.key;
+    if (!k || !CANONICAL_LEAD_STATUSES.includes(k)) return;
+    if (s.label && LEAD_STATUS_META[k]) {
+      LEAD_STATUS_META[k] = { ...LEAD_STATUS_META[k], label: s.label };
+    }
+    if (!s.hidden) visible.push(k);
+  });
+  if (visible.length) LEAD_STATUSES = visible;
+}
+
+export function isStageHidden(key) {
+  return !LEAD_STATUSES.includes(key);
 }
 
 export const VISIT_STATUSES = [

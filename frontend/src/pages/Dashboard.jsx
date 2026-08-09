@@ -10,23 +10,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { StatCard } from "@/components/dashboard/StatCard";
 import AnnouncementBanners from "@/components/messages/AnnouncementBanners";
 import LeadFunnel from "@/components/leads/LeadFunnel";
+import { statusLabel } from "@/components/leads/constants";
 
 const OPEN_STATUSES = ["new", "not_connected", "interested", "follow_up"];
 const CONVERTED_STATUSES = ["converted", "application_submitted", "admission_confirmed", "fee_paid", "completed"];
-
-const STATUS_LABEL = {
-  new: "New",
-  not_connected: "Not connected",
-  interested: "Interested",
-  follow_up: "Follow-up",
-  converted: "Converted",
-  application_submitted: "App. submitted",
-  admission_confirmed: "Confirmed",
-  fee_paid: "Fee paid",
-  completed: "Completed",
-  not_turned: "Not turned",
-  lost: "Lost",
-};
 
 const STATUS_TONE = {
   converted: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30",
@@ -44,7 +31,7 @@ function StatusBadge({ status }) {
   const tone = STATUS_TONE[status] || "bg-muted text-muted-foreground border-border";
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider border shrink-0 ${tone}`}>
-      {STATUS_LABEL[status] || status || "—"}
+      {statusLabel(status)}
     </span>
   );
 }

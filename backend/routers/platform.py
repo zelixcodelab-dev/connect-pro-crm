@@ -19,6 +19,7 @@ from lib.whitelabel import (
     provision_tenant, tenant_public, merged_branding, normalize_modules,
     MODULE_CATALOG, email_in_use, BRANDING_FIELDS,
 )
+from lib.pipeline import get_pipeline_stages, save_pipeline_stages
 
 router = APIRouter(prefix="/api/platform", tags=["platform"])
 log = logging.getLogger("platform")
@@ -82,6 +83,27 @@ async def platform_me(owner: dict = Depends(get_platform_owner)):
 @router.get("/modules")
 async def list_modules(owner: dict = Depends(get_platform_owner)):
     return {"modules": MODULE_CATALOG}
+
+
+class PipelineStageIn(BaseModel):
+    key: str
+    label: Optional[str] = None
+    hidden: Optional[bool] = False
+
+
+class PipelineIn(BaseModel):
+    stages: List[PipelineStageIn]
+
+
+@router.get("/pipeline")
+async def get_pipeline(owner: dict = Depends(get_platform_owner)):
+    return {"stages": await get_pipeline_stages()}
+
+
+@router.put("/pipeline")
+async def update_pipeline(payload: PipelineIn, owner: dict = Depends(get_platform_owner)):
+    stages = [s.model_dump() for s in payload.stages]
+    return {"stages": await save_pipeline_stages(stages)}
 
 
 @router.get("/summary")

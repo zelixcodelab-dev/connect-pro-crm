@@ -17,6 +17,7 @@ import {
 import {
   Buildings, Plus, PencilSimple, Trash, Key, ArrowClockwise, SignOut,
   Sun, Moon, UsersThree, Student, CheckCircle, Prohibit, Link as LinkIcon, Sparkle,
+  FunnelSimple, ArrowUp, ArrowDown, Eye, EyeSlash,
 } from "@phosphor-icons/react";
 
 const emptyForm = () => ({
@@ -66,16 +67,23 @@ export default function PlatformConsole() {
   const [form, setForm] = useState(emptyForm());
   const [saving, setSaving] = useState(false);
 
+  // Global CRM pipeline config (rename / reorder / show-hide stages).
+  const [pipelineOpen, setPipelineOpen] = useState(false);
+  const [pStages, setPStages] = useState([]);
+  const [pSaving, setPSaving] = useState(false);
+
   const load = useCallback(async () => {
     try {
-      const [t, s, m] = await Promise.all([
+      const [t, s, m, p] = await Promise.all([
         api.get("/platform/tenants"),
         api.get("/platform/summary"),
         api.get("/platform/modules"),
+        api.get("/platform/pipeline"),
       ]);
       setTenants(t.data.tenants || []);
       setSummary(s.data || {});
       setModules(m.data.modules || []);
+      setPStages(p.data.stages || []);
     } catch (e) {
       toast.error("Failed to load companies");
     } finally {
@@ -223,6 +231,40 @@ export default function PlatformConsole() {
 
   const doLogout = async () => { await logout(); nav("/login"); };
 
+  // ---- Pipeline management ----
+  const pMove = (idx, dir) => {
+    setPStages((prev) => {
+      const next = [...prev];
+      const j = idx + dir;
+      if (j < 0 || j >= next.length) return prev;
+      [next[idx], next[j]] = [next[j], next[idx]];
+      return next;
+    });
+  };
+  const pSetLabel = (key, label) =>
+    setPStages((prev) => prev.map((s) => (s.key === key ? { ...s, label } : s)));
+  const pToggleHidden = (key) =>
+    setPStages((prev) => prev.map((s) => (s.key === key ? { ...s, hidden: !s.hidden } : s)));
+  const savePipeline = async () => {
+    if (pStages.some((s) => !String(s.label || "").trim())) {
+      toast.error("Every stage needs a label");
+      return;
+    }
+    setPSaving(true);
+    try {
+      const { data } = await api.put("/platform/pipeline", {
+        stages: pStages.map((s) => ({ key: s.key, label: s.label.trim(), hidden: !!s.hidden })),
+      });
+      setPStages(data.stages || []);
+      toast.success("Pipeline saved — companies will see it on next load");
+      setPipelineOpen(false);
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || "Failed to save pipeline");
+    } finally {
+      setPSaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Top bar */}
@@ -238,6 +280,9 @@ export default function PlatformConsole() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={() => setPipelineOpen(true)} data-testid="pipeline-manage-btn" title="Customize CRM pipeline stages" className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-muted/60 hover:bg-muted text-sm text-muted-foreground">
+              <FunnelSimple size={15} /> Pipeline
+            </button>
             <button onClick={copyLogin} title="Copy login URL" className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-muted/60 hover:bg-muted text-sm text-muted-foreground">
               <LinkIcon size={15} /> Login link
             </button>
@@ -445,6 +490,39 @@ export default function PlatformConsole() {
             <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <Button onClick={save} disabled={saving} className="btn-amber border-0" data-testid="save-company">
               {saving ? "Saving…" : editing ? "Save changes" : "Create company"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pipeline stages manager */}
+      <Dialog open={pipelineOpen} onOpenChange={setPipelineOpen}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto" data-testid="pipeline-dialog">
+          <DialogHeader>
+            <DialogTitle>CRM pipeline stages</DialogTitle>
+            <DialogDescription>Rename, reorder and show/hide the lead stages. This applies to every company's CRM board, funnel and filters.</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2 py-1">
+            {pStages.map((s, idx) => (
+              <div key={s.key} data-testid={`pipeline-stage-${s.key}`} className={`flex items-center gap-2 rounded-lg border p-2 ${s.hidden ? "border-border bg-muted/40 opacity-70" : "border-border"}`}>
+                <div className="flex flex-col">
+                  <button type="button" onClick={() => pMove(idx, -1)} disabled={idx === 0} data-testid={`pipeline-up-${s.key}`} className="h-4 w-6 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30"><ArrowUp size={13} weight="bold" /></button>
+                  <button type="button" onClick={() => pMove(idx, 1)} disabled={idx === pStages.length - 1} data-testid={`pipeline-down-${s.key}`} className="h-4 w-6 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30"><ArrowDown size={13} weight="bold" /></button>
+                </div>
+                <Input value={s.label} onChange={(e) => pSetLabel(s.key, e.target.value)} data-testid={`pipeline-label-${s.key}`} className="h-9 flex-1" />
+                <button type="button" onClick={() => pToggleHidden(s.key)} data-testid={`pipeline-hide-${s.key}`} title={s.hidden ? "Hidden — click to show" : "Visible — click to hide"} className={`h-9 w-9 shrink-0 rounded-md flex items-center justify-center border ${s.hidden ? "border-border text-muted-foreground" : "border-orange-500/40 text-orange-600 dark:text-orange-400 bg-orange-500/5"}`}>
+                  {s.hidden ? <EyeSlash size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            ))}
+            <p className="text-[11px] text-muted-foreground pt-1">Stage keys are fixed so automations (auto-convert, missed follow-ups) keep working — only labels, order and visibility change.</p>
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setPipelineOpen(false)}>Cancel</Button>
+            <Button onClick={savePipeline} disabled={pSaving} className="btn-amber border-0" data-testid="pipeline-save">
+              {pSaving ? "Saving…" : "Save pipeline"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,0 +1,26 @@
+{
+  "summary": "Frontend-only test of global pipeline customization. Verified Platform Owner can open the CRM pipeline dialog, rename ('new' -> 'Enquiry'), reorder (moved 'interested' above 'not_connected'), and hide ('not_turned'). Save shows success toast and dialog closes; changes persist across dialog reopen. Empty-label validation shows 'Every stage needs a label' toast and blocks save. After a fresh Company Admin login, the tenant CRM reflects the custom labels/order/visibility on Overview funnel filters, All-leads filter chips (order: All, Enquiry, Interested, Not Connected, Follow-up, Converted, Application Submitted, Admission Confirmed, Fee Paid, Completed, Lost, Missed) and Board columns (in same order with 'Not Turned' hidden). Regression: dashboard-page and crm-kpis render, sidebar shows only CRM modules (Overview, CRM/Leads, Contacts, Messages, Team, Customize, Activity, Settings), Leads page loads. Pipeline reset to defaults at end (labels + order + all-visible).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Overview dashboard (Company Admin)", "issues": ["KPI card 'Open leads' subtitle is hardcoded 'New \u00b7 Interested \u00b7 Follow-up' and does not update to the customized labels (e.g., should show 'Enquiry \u00b7 Interested \u00b7 Follow-up'). Minor cosmetic inconsistency; funnel/board/filter chips do update correctly."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: make the 'Open leads' KPI subtitle on the Overview dashboard use statusLabel() so it matches the customized pipeline labels (currently hardcoded 'New \u00b7 Interested \u00b7 Follow-up')."
+  ],
+  "critical_code_review_comments": [
+    "Funnel/Board/filter pickers correctly consume LEAD_STATUSES + statusLabel and respect hidden stages. Empty-label validation works client-side.",
+    "Note that when funnel has zero leads it renders the placeholder 'No leads yet' text and does not visually show the row list, so label propagation in the funnel can only be confirmed via non-empty data or via the filter chips (already verified)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "owner@educonnect.app / Owner@12345 ; admin@educonnect.app / Admin@12345",
+  "seed_data_creation": "None. Pipeline mutated during test then reset to canonical defaults (labels/order/visibility).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Global pipeline is left at canonical defaults. Test cases exercised: rename, reorder up/down, hide toggle, empty-label validation, persistence across dialog reopen, tenant funnel/board/filter propagation, and CRM regression. Only minor cosmetic finding: 'Open leads' KPI subtitle is hardcoded and not driven by statusLabel()."
+}
