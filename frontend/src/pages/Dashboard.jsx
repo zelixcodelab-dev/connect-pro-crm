@@ -118,7 +118,7 @@ export default function Dashboard() {
         <StatCard testId="kpi-total-leads" eyebrow="Total leads" value={String(stats.total || 0)} palette="amber" icon={Target}
           hint="All leads in your pipeline" onClick={() => nav("/leads")} />
         <StatCard testId="kpi-open-leads" eyebrow="Open leads" value={String(totals.open)} palette="sky" icon={TrendUp}
-          hint="New · Interested · Follow-up" onClick={() => nav("/leads")} />
+          hint={OPEN_STATUSES.map((k) => statusLabel(k)).join(" · ")} onClick={() => nav("/leads")} />
         <StatCard testId="kpi-converted" eyebrow="Converted" value={String(totals.converted)} palette="emerald" icon={ArrowUpRight}
           hint={`${totals.rate}% conversion rate`} onClick={() => nav("/leads?filter=converted")} />
         <StatCard testId="kpi-missed" eyebrow="Missed follow-ups" value={String(stats.missed || 0)} palette="rose" icon={ClockCountdown}

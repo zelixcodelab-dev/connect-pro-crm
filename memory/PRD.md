@@ -105,6 +105,17 @@ interdependencies; can be pruned later if desired).
   Github + redeploy of BOTH frontend (public assets) and backend (branding default).
 
 ## Backlog / Remaining (P1/P2)
+- 2026-06: **Customizable CRM pipeline stages (global).** Platform Owner can rename,
+  reorder and show/hide the 11 lead stages from a new "Pipeline" manager in the Platform
+  Console (`PlatformConsole.jsx`). Stage KEYS are fixed (automations keep working); only
+  labels/order/visibility change. Stored as one global doc in the platform DB
+  (`lib/pipeline.py`, `gdb.app_config` id="pipeline"). Read via `GET /api/pipeline`
+  (any tenant user) and managed via `GET/PUT /api/platform/pipeline` (owner). Frontend
+  hydrates the shared live-binding `constants.js` (`hydratePipeline`) through a
+  `PipelineProvider` (`lib/pipeline.jsx`) wrapping the authenticated app; the Leads board,
+  Overview funnel, status filter chips and dashboard badges all reflect the config.
+  Verified by testing_agent (iteration_2): 100% frontend pass (rename/reorder/hide,
+  empty-label validation, persistence, tenant propagation, CRM regression).
 - 2026-06: **CRM-only transformation + "Connect Pro - Zelix" rebrand.** Trimmed backend
   `MODULE_CATALOG` + `DEFAULT_ENABLED_MODULES` to the 7 CRM keys (overview, settings, users,
   leads, clients, messages, activity); rewrote the Overview dashboard (`Dashboard.jsx`) to a
