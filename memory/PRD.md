@@ -105,6 +105,21 @@ interdependencies; can be pruned later if desired).
   Github + redeploy of BOTH frontend (public assets) and backend (branding default).
 
 ## Backlog / Remaining (P1/P2)
+- 2026-06: **Overview/Employees/Team/Settings refinements (5 changes).**
+  (1) Main Overview (`Dashboard.jsx`) now shows the CRM overview content moved from the
+  Leads "Overview" tab (StaffPerformancePanel, TodayVisitsPanel, CrmAnalytics) + super-admin
+  office switcher; the old custom KPI cards + funnel were removed and the Leads page
+  (`Leads.jsx`) no longer has an Overview tab (tabs: All leads, Campaigns).
+  (2) "Contacts" renamed to **Employees** (nav + bottom nav + titles) and `/clients` now
+  uses `pageScope="employees"` (staff/office records).
+  (3) Team → Create user (`CreateUserDialog.jsx`) defaults to role **User** and lists
+  **Employees** to grant a login (auto-fills name/email, links the account).
+  (4a) Settings replaced the Admission-Revenue-PIN card with a **Change password** card
+  (`components/settings/ChangePassword.jsx` → `POST /api/auth/change-password`, new
+  authenticated endpoint in `routers/auth.py` verifying the current bcrypt hash).
+  (4b) The **Customize/Branding** page is embedded inside Settings (super admin) and the
+  standalone "Customize" sidebar item was removed. Verified by testing_agent iteration_3
+  (35/35 frontend checks) + change-password verified via curl.
 - 2026-06: **Customizable CRM pipeline stages (global).** Platform Owner can rename,
   reorder and show/hide the 11 lead stages from a new "Pipeline" manager in the Platform
   Console (`PlatformConsole.jsx`). Stage KEYS are fixed (automations keep working); only
