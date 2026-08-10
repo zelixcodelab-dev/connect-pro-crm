@@ -13,7 +13,7 @@ import InstallPrompt from "@/components/InstallPrompt";
 import {
   House, Gear, SignOut, Sun, Moon, List as ListIcon, MagnifyingGlass,
   ShieldCheck, ChatCircleDots, ArrowUpRight,
-  Target, Handshake, UserCircle, ClockCounterClockwise, Palette,
+  Target, Handshake, UserCircle, ClockCounterClockwise,
 } from "@phosphor-icons/react";
 
 // Sidebar nav with role gating.
@@ -24,10 +24,9 @@ import {
 const ALL_NAV = [
   { to: "/", label: "Overview", icon: House, end: true, tid: "nav-overview", perm: "overview", module: "overview", userRoleAllowed: true },
   { to: "/leads", label: "CRM / Leads", icon: Target, tid: "nav-leads", roles: ["super_admin", "office_admin", "staff"], perm: "leads", module: "leads", userRoleAllowed: false },
-  { to: "/clients", label: "Contacts", icon: Handshake, tid: "nav-clients", roles: ["super_admin", "office_admin"], perm: "clients", module: "clients" },
+  { to: "/clients", label: "Employees", icon: Handshake, tid: "nav-clients", roles: ["super_admin", "office_admin"], perm: "clients", module: "clients" },
   { to: "/messages", label: "Messages", icon: ChatCircleDots, tid: "nav-messages", module: "messages", userRoleAllowed: true },
   { to: "/users", label: "Team", icon: ShieldCheck, tid: "nav-users", roles: ["super_admin"], module: "users" },
-  { to: "/branding", label: "Customize", icon: Palette, tid: "nav-branding", roles: ["super_admin"] },
   { to: "/activity", label: "Activity", icon: ClockCounterClockwise, tid: "nav-activity", roles: ["super_admin", "office_admin"], module: "activity" },
   { to: "/settings", label: "Settings", icon: Gear, tid: "nav-settings", perm: "settings", module: "settings", userRoleAllowed: true },
 ];
@@ -43,7 +42,7 @@ const PATH_MODULE = {
 const PAGE_TITLES = {
   "/": "Overview",
   "/messages": "Messages",
-  "/clients": "Contacts",
+  "/clients": "Employees",
   "/leads": "CRM / Leads",
   "/settings": "Settings",
   "/users": "Team & approvals",

@@ -184,6 +184,29 @@ async def update_settings(payload: SettingsUpdate, user: dict = Depends(require_
     return fresh
 
 
+class ChangePasswordIn(BaseModel):
+    current_password: str = Field(min_length=1, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+@router.post("/change-password")
+async def change_password(payload: ChangePasswordIn, user: dict = Depends(get_current_user)):
+    """Authenticated self-service password change. Verifies the current
+    password against the stored bcrypt hash, then sets the new one."""
+    record = await db.users.find_one({"id": user["id"]})
+    if not record:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not verify_password(payload.current_password, record.get("password_hash", "")):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if verify_password(payload.new_password, record.get("password_hash", "")):
+        raise HTTPException(status_code=400, detail="New password must be different from your current one")
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {"password_hash": hash_password(payload.new_password), "password_reset_at": now_iso()}},
+    )
+    return {"ok": True, "message": "Password changed successfully."}
+
+
 # ---------- Self-service password reset ----------
 class ForgotPasswordIn(BaseModel):
     email: EmailStr

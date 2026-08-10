@@ -7,7 +7,8 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import StaffProfile from "@/pages/StaffProfile";
-import AdmissionRevenuePinSettings from "@/components/settings/AdmissionRevenuePinSettings";
+import ChangePassword from "@/components/settings/ChangePassword";
+import Branding from "@/pages/Branding";
 
 export default function Settings() {
   const { user, updateProfile } = useAuth();
@@ -22,6 +23,7 @@ function WorkspaceSettings({ user, updateProfile }) {
     currency: user?.currency || "USD",
   });
   const [saving, setSaving] = useState(false);
+  const isSuper = user?.role === "super_admin";
 
   const submit = async (e) => {
     e.preventDefault();
@@ -37,45 +39,51 @@ function WorkspaceSettings({ user, updateProfile }) {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in max-w-2xl" data-testid="settings-page">
+    <div className="space-y-8 animate-fade-in" data-testid="settings-page">
       <header>
         <p className="label-eyebrow">Preferences</p>
         <h1 className="font-display text-3xl sm:text-4xl tracking-tight mt-2">Settings</h1>
       </header>
 
-      <Card className="p-6 border border-border bg-card rounded-lg shadow-none">
-        <form onSubmit={submit} className="space-y-5">
-          <div>
-            <Label>Your name</Label>
-            <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} data-testid="settings-name" />
-          </div>
-          <div>
-            <Label>Business name</Label>
-            <Input value={form.business_name} onChange={(e) => setForm({ ...form, business_name: e.target.value })} data-testid="settings-business" />
-          </div>
-          <div>
-            <Label>Currency</Label>
-            <Select value={form.currency} onValueChange={(v) => setForm({ ...form, currency: v })}>
-              <SelectTrigger data-testid="settings-currency"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="USD">USD — US Dollar ($)</SelectItem>
-                <SelectItem value="INR">INR — Indian Rupee (₹)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>Email</Label>
-            <Input value={user?.email || ""} disabled />
-            <p className="text-xs text-muted-foreground mt-1">Email cannot be changed.</p>
-          </div>
-          <Button type="submit" disabled={saving} className="btn-amber border-0 lift" data-testid="settings-save">
-            {saving ? "Saving…" : "Save changes"}
-          </Button>
-        </form>
-      </Card>
+      <div className="space-y-6 max-w-2xl">
+        <Card className="p-6 border border-border bg-card rounded-lg shadow-none">
+          <form onSubmit={submit} className="space-y-5">
+            <div>
+              <Label>Your name</Label>
+              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} data-testid="settings-name" />
+            </div>
+            <div>
+              <Label>Business name</Label>
+              <Input value={form.business_name} onChange={(e) => setForm({ ...form, business_name: e.target.value })} data-testid="settings-business" />
+            </div>
+            <div>
+              <Label>Currency</Label>
+              <Select value={form.currency} onValueChange={(v) => setForm({ ...form, currency: v })}>
+                <SelectTrigger data-testid="settings-currency"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USD">USD — US Dollar ($)</SelectItem>
+                  <SelectItem value="INR">INR — Indian Rupee (₹)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input value={user?.email || ""} disabled />
+              <p className="text-xs text-muted-foreground mt-1">Email cannot be changed.</p>
+            </div>
+            <Button type="submit" disabled={saving} className="btn-amber border-0 lift" data-testid="settings-save">
+              {saving ? "Saving…" : "Save changes"}
+            </Button>
+          </form>
+        </Card>
 
-      {user?.role === "super_admin" && (
-        <AdmissionRevenuePinSettings userEmail={user?.email} />
+        <ChangePassword />
+      </div>
+
+      {isSuper && (
+        <section className="pt-2 border-t border-border" data-testid="settings-customize-section">
+          <Branding />
+        </section>
       )}
     </div>
   );

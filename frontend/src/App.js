@@ -96,7 +96,7 @@ export default function App() {
           <Route element={<Protected><PipelineProvider><AppShell /></PipelineProvider></Protected>}>
             <Route path="/" element={<PermGate page="overview"><Dashboard /></PermGate>} />
             <Route path="/leads" element={<PermGate roles={LEADS_ROLES} page="leads"><Leads /></PermGate>} />
-            <Route path="/clients" element={<PermGate page="clients"><Clients pageScope="clients" /></PermGate>} />
+            <Route path="/clients" element={<PermGate page="clients"><Clients pageScope="employees" /></PermGate>} />
             <Route path="/clients/:id" element={<PermGate page="clients"><ClientDetail /></PermGate>} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/messages/:id" element={<Messages />} />

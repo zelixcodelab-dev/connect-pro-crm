@@ -2,19 +2,17 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import api from "@/lib/api";
-import CrmAnalytics from "@/components/office-dashboard/CrmAnalytics";
 import CampaignsPanel from "@/components/leads/CampaignsPanel";
 import LeadsPipeline from "@/components/leads/LeadsPipeline";
 import TodayVisitsPanel from "@/components/leads/TodayVisitsPanel";
 import LeadDetailDialog from "@/components/leads/LeadDetailDialog";
-import StaffPerformancePanel from "@/components/leads/StaffPerformancePanel";
 
 export default function Leads() {
   const { user } = useAuth();
   const isStaff = user?.role === "staff";
   const isSuper = user?.role === "super_admin";
   const [params, setParams] = useSearchParams();
-  const [crmTab, setCrmTab] = useState("overview"); // overview | campaigns (admins)
+  const [crmTab, setCrmTab] = useState("all"); // all | campaigns (admins)
 
   // Super Admin only: narrow every CRM widget to a single office. Persisted
   // in localStorage so a page reload keeps the picked office. "all" (default)
@@ -117,7 +115,7 @@ export default function Leads() {
         <>
           {/* CRM tabs */}
           <div className="flex items-center gap-1 border-b border-border" data-testid="crm-tabs">
-            {[["overview", "Overview"], ["campaigns", "Campaigns"], ["all", "All leads"]].map(([k, label]) => (
+            {[["all", "All leads"], ["campaigns", "Campaigns"]].map(([k, label]) => (
               <button
                 key={k}
                 type="button"
@@ -132,13 +130,7 @@ export default function Leads() {
             ))}
           </div>
 
-          {crmTab === "overview" ? (
-            <div className="space-y-5" data-testid="crm-overview">
-              <StaffPerformancePanel officeOverride={activeOffice} />
-              <TodayVisitsPanel user={user} officeOverride={activeOffice} />
-              <CrmAnalytics office={activeOffice === "all" ? null : activeOffice} />
-            </div>
-          ) : crmTab === "campaigns" ? (
+          {crmTab === "campaigns" ? (
             <CampaignsPanel user={user} />
           ) : (
             <div data-testid="crm-all-leads">

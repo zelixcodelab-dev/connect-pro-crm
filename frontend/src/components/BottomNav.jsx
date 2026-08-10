@@ -19,7 +19,7 @@ const ALL_SIDE_NAV = [
   { to: "/", label: "Home", icon: House, end: true, tid: "bottom-nav-home", perm: "overview" },
   { to: "/leads", label: "Leads", icon: Target, tid: "bottom-nav-leads", perm: "leads" },
   { to: "/messages", label: "Messages", icon: ChatCircleDots, tid: "bottom-nav-messages" },
-  { to: "/clients", label: "Contacts", icon: UsersThree, tid: "bottom-nav-clients", perm: "clients" },
+  { to: "/clients", label: "Employees", icon: UsersThree, tid: "bottom-nav-clients", perm: "clients" },
 ];
 
 // Staff get a fixed, CRM-focused bottom bar: Home · My Leads · [＋] · Messages
@@ -40,12 +40,12 @@ const ALL_QUICK_ACTIONS = [
     perm: "leads",
   },
   {
-    label: "Add contact",
-    sub: "New contact record",
+    label: "Add employee",
+    sub: "New employee record",
     icon: UsersThree,
     color: "from-sky-500 to-blue-600",
     href: "/clients?new=1",
-    tid: "qa-add-contact",
+    tid: "qa-add-employee",
     perm: "clients",
   },
 ];

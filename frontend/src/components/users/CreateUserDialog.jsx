@@ -20,9 +20,18 @@ const OFFICE_OPTIONS = [
 
 const emptyNewUser = () => ({
   email: "", password: "", name: "",
-  role: "office_admin", office: "KM_BLR", currency: "INR",
+  role: "user", office: "KM_BLR", currency: "INR",
   linked_client_id: "",
 });
+
+// Employee client-types that can be given a login (see Employees page).
+const EMPLOYEE_TYPES = ["staff", "km_blr_office", "km_tcr_office", "km_kmly_office"];
+const EMP_TYPE_LABEL = {
+  staff: "Staff",
+  km_blr_office: "KM BLR Office",
+  km_tcr_office: "KM TCR Office",
+  km_kmly_office: "KM KMLY Office",
+};
 
 /** Create-user dialog. Self-contained — owns its form state, lazy-loads
  * external clients when role flips to "user", and calls onCreated() with
@@ -45,8 +54,7 @@ export default function CreateUserDialog({ open, onOpenChange, onCreated }) {
     }
   }, [open]);
 
-  // Lazy-load external clients (sub-agent / associate consultant) the FIRST
-  // time role flips to "user". Cached after that.
+  // Lazy-load employees the FIRST time role flips to "user". Cached after that.
   useEffect(() => {
     if (form.role !== "user" || externalLoaded) return;
     let cancelled = false;
@@ -54,13 +62,11 @@ export default function CreateUserDialog({ open, onOpenChange, onCreated }) {
       try {
         const { data } = await api.get("/clients");
         if (cancelled) return;
-        const external = (data || []).filter((c) =>
-          c.client_type === "sub_agent_associate" || c.client_type === "associate_consultant"
-        );
-        setExternalClients(external);
+        const employees = (data || []).filter((c) => EMPLOYEE_TYPES.includes(c.client_type));
+        setExternalClients(employees);
         setExternalLoaded(true);
       } catch (err) {
-        console.error("[users] failed to load external clients:", err?.message || err);
+        console.error("[users] failed to load employees:", err?.message || err);
       }
     })();
     return () => { cancelled = true; };
@@ -132,14 +138,14 @@ export default function CreateUserDialog({ open, onOpenChange, onCreated }) {
                   }}
                 >
                   <SelectTrigger data-testid="cu-linked-client" className="w-full">
-                    <SelectValue placeholder={externalLoaded ? "Select a sub-agent / consultant…" : "Loading clients…"} />
+                    <SelectValue placeholder={externalLoaded ? "Select an employee…" : "Loading employees…"} />
                   </SelectTrigger>
                   <SelectContent>
                     <div className="px-2 pt-1 pb-2">
                       <Input
                         value={linkedClientSearch}
                         onChange={(e) => setLinkedClientSearch(e.target.value)}
-                        placeholder="Search by name"
+                        placeholder="Search employees by name"
                         className="h-8 text-sm"
                         data-testid="cu-linked-client-search"
                         onKeyDown={(e) => e.stopPropagation()}
@@ -152,7 +158,7 @@ export default function CreateUserDialog({ open, onOpenChange, onCreated }) {
                           <div className="flex flex-col">
                             <span>{c.name}</span>
                             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                              {c.client_type === "sub_agent_associate" ? "Sub-agent" : "Associate consultant"}
+                              {EMP_TYPE_LABEL[c.client_type] || "Employee"}
                               {c.email ? ` · ${c.email}` : ""}
                             </span>
                           </div>
@@ -160,13 +166,13 @@ export default function CreateUserDialog({ open, onOpenChange, onCreated }) {
                       ))}
                     {externalLoaded && externalClients.length === 0 && (
                       <div className="px-3 py-2 text-xs text-muted-foreground">
-                        No sub-agents or associate consultants yet. Add one from the Clients page first.
+                        No employees yet. Add one from the Employees page first.
                       </div>
                     )}
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground mt-1">
-                  Pick the client whose dashboard this login should be tied to. They will see only students that reference them and their SC earned (read-only).
+                  Pick the employee this login belongs to. Their name and email are filled in automatically — just set a password below.
                 </p>
               </>
             ) : (
@@ -224,7 +230,7 @@ export default function CreateUserDialog({ open, onOpenChange, onCreated }) {
                 <SelectContent>
                   <SelectItem value="office_admin">Office Admin</SelectItem>
                   <SelectItem value="super_admin">Super Admin</SelectItem>
-                  <SelectItem value="user">User (personal finance)</SelectItem>
+                  <SelectItem value="user">User (linked to an employee)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
