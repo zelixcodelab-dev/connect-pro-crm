@@ -6,7 +6,7 @@ import StaffPerformancePanel from "@/components/leads/StaffPerformancePanel";
 import TodayVisitsPanel from "@/components/leads/TodayVisitsPanel";
 import CrmAnalytics from "@/components/office-dashboard/CrmAnalytics";
 
-const OFFICES = [["all", "All offices"], ["KM_BLR", "KM BLR"], ["KM_TCR", "KM TCR"], ["KM_KMLY", "KM KMLY"]];
+const OFFICES = [["all", "All offices"], ["HEAD_OFFICE", "HEAD OFFICE"], ["BRANCH_EKM", "BRANCH EKM"], ["BRANCH_TVM", "BRANCH TVM"]];
 
 export default function Dashboard() {
   const { user } = useAuth();

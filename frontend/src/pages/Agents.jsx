@@ -8,7 +8,7 @@ import { UsersThree, Briefcase, IdentificationBadge } from "@phosphor-icons/reac
 const TYPE_META = {
   sub_agent: { label: "Sub Agent", icon: UsersThree, color: "bg-violet-100/60 dark:bg-violet-500/15 text-violet-700 dark:text-violet-400" },
   associate: { label: "Associate", icon: Briefcase, color: "bg-amber-100/60 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400" },
-  km: { label: "KM", icon: IdentificationBadge, color: "bg-sky-100/60 dark:bg-sky-500/15 text-sky-700 dark:text-sky-400" },
+  km: { label: "Company", icon: IdentificationBadge, color: "bg-sky-100/60 dark:bg-sky-500/15 text-sky-700 dark:text-sky-400" },
 };
 
 export default function Agents() {
