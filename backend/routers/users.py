@@ -268,18 +268,23 @@ async def create_user(payload: CreateUserIn, user: dict = Depends(get_current_us
     if existing and not _is_soft_deleted(existing):
         raise HTTPException(409, "A user with this email already exists")
 
-    # Validate the linked client (only meaningful for role="user").
+    # Validate the linked client. Now supports linking an EMPLOYEE record
+    # (staff / office) to any login, plus the legacy external-partner types.
     linked_client_id: Optional[str] = None
     linked_client_name: Optional[str] = None
-    if payload.linked_client_id and payload.role == "user":
+    _LINKABLE_TYPES = {
+        "staff", "km_blr_office", "km_tcr_office", "km_kmly_office",
+        "sub_agent_associate", "associate_consultant",
+    }
+    if payload.linked_client_id and payload.role in ("user", "super_admin"):
         client = await db.clients.find_one(
             {"id": payload.linked_client_id},
             {"_id": 0, "id": 1, "name": 1, "client_type": 1},
         )
         if not client:
-            raise HTTPException(400, "Linked client not found")
-        if client.get("client_type") not in ("sub_agent_associate", "associate_consultant"):
-            raise HTTPException(400, "Linked client must be a sub-agent or associate consultant")
+            raise HTTPException(400, "Linked employee not found")
+        if client.get("client_type") not in _LINKABLE_TYPES:
+            raise HTTPException(400, "Linked record must be an employee")
         # One-to-one: a client can only back one login account at a time.
         # Ignore any soft-deleted match — the row we're about to reactivate
         # can legally re-claim its old linked client.
@@ -290,7 +295,7 @@ async def create_user(payload: CreateUserIn, user: dict = Depends(get_current_us
         if already and (not existing or already.get("id") != existing.get("id")):
             raise HTTPException(
                 409,
-                f"This client is already linked to another user account ({already.get('email')}).",
+                f"This employee is already linked to another user account ({already.get('email')}).",
             )
         linked_client_id = client["id"]
         linked_client_name = client["name"]

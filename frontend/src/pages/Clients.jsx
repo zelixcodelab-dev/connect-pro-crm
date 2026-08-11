@@ -54,7 +54,7 @@ const empty = {
   name: "", client_type: "sub_agent_associate", email: "", phone: "", company: "",
   office: "", eligible_incentive: "", date_of_birth: "",
   employee_id: "", address: "", place: "", photo_url: "",
-  home_office: "",
+  home_office: "", emp_type: "user", blood_group: "",
 };
 
 const HOME_OFFICE_OPTIONS = [
@@ -63,6 +63,14 @@ const HOME_OFFICE_OPTIONS = [
   { value: "KM_KMLY", label: "KM KMLY" },
   { value: "ALL", label: "Shared (all offices)" },
 ];
+
+// CRM employee access-type options + standard blood groups.
+const EMP_TYPES = [
+  { value: "user", label: "User (Employees)" },
+  { value: "admin", label: "Admin" },
+];
+const empTypeLabel = (v) => EMP_TYPES.find((t) => t.value === v)?.label || "User (Employees)";
+const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
 
 // Dispatcher: office admins get the unified staff page; super admins get the
 // scoped People page (Employees vs Clients) driven by the route's pageScope.
@@ -74,6 +82,7 @@ export default function Clients({ pageScope = "clients" }) {
 
 function SuperAdminPeople({ pageScope }) {
   const { user } = useAuth();
+  const isSuper = user?.role === "super_admin";
   const isEmployees = pageScope === "employees";
   const scopeTypes = useMemo(
     () => (isEmployees ? EMPLOYEE_PAGE_TYPES : CLIENT_PAGE_TYPES),
@@ -119,20 +128,24 @@ function SuperAdminPeople({ pageScope }) {
 
   const filtered = useMemo(() => {
     let l = list.filter((c) => scopeTypes.includes(c.client_type));
-    if (filter !== "all") l = l.filter((c) => c.client_type === filter);
+    if (filter !== "all") {
+      l = isEmployees
+        ? l.filter((c) => (c.emp_type || "user") === filter)
+        : l.filter((c) => c.client_type === filter);
+    }
     return l;
-  }, [list, filter, scopeTypes]);
+  }, [list, filter, scopeTypes, isEmployees]);
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ ...empty, client_type: defaultType });
+    setForm({ ...empty, client_type: isEmployees ? "staff" : defaultType, emp_type: "user" });
     setOpen(true);
   };
   const openEdit = (c) => {
     setEditing(c);
     setForm({
       name: c.name,
-      client_type: c.client_type || defaultType,
+      client_type: isEmployees ? "staff" : (c.client_type || defaultType),
       email: c.email || "",
       phone: c.phone || "",
       company: c.company || "",
@@ -144,19 +157,25 @@ function SuperAdminPeople({ pageScope }) {
       place: c.place || "",
       photo_url: c.photo_url || "",
       home_office: c.home_office || "",
+      emp_type: c.emp_type || "user",
+      blood_group: c.blood_group || "",
     });
     setOpen(true);
   };
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!form.client_type) { toast.error("Type is required"); return; }
+    const client_type = isEmployees ? "staff" : form.client_type;
+    if (!client_type) { toast.error("Type is required"); return; }
     const payload = {
       ...form,
+      client_type,
       office: form.office || null,
       eligible_incentive: form.eligible_incentive === "" ? null : Number(form.eligible_incentive),
       date_of_birth: form.date_of_birth || null,
-      home_office: form.home_office || null,
+      home_office: isEmployees ? null : (form.home_office || null),
+      emp_type: isEmployees ? (form.emp_type || "user") : null,
+      blood_group: form.blood_group || null,
     };
     try {
       if (editing) await api.patch(`/clients/${editing.id}`, payload);
@@ -172,7 +191,7 @@ function SuperAdminPeople({ pageScope }) {
     toast.success("Deleted"); load();
   };
 
-  const isStaff = form.client_type === "staff";
+  const isStaff = isEmployees || form.client_type === "staff";
 
   return (
     <div className="space-y-6 animate-fade-in" data-testid="clients-page">
@@ -193,9 +212,13 @@ function SuperAdminPeople({ pageScope }) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All types</SelectItem>
-              {visibleTypes.map((t) => (
-                <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-              ))}
+              {isEmployees
+                ? EMP_TYPES.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  ))
+                : visibleTypes.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  ))}
             </SelectContent>
           </Select>
           <Dialog open={open} onOpenChange={setOpen}>
@@ -217,14 +240,24 @@ function SuperAdminPeople({ pageScope }) {
                 <div><Label>Name *</Label><Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} data-testid="cli-name" /></div>
                 <div>
                   <Label>Type *</Label>
-                  <Select value={form.client_type} onValueChange={(v) => setForm({ ...form, client_type: v })}>
-                    <SelectTrigger data-testid="cli-type"><SelectValue placeholder="Select type" /></SelectTrigger>
-                    <SelectContent>
-                      {visibleTypes.map((t) => (
-                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {isEmployees ? (
+                    <Select value={form.emp_type} onValueChange={(v) => setForm({ ...form, emp_type: v })}>
+                      <SelectTrigger data-testid="cli-type"><SelectValue placeholder="Select type" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="user">User (Employees)</SelectItem>
+                        {isSuper && <SelectItem value="admin">Admin</SelectItem>}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Select value={form.client_type} onValueChange={(v) => setForm({ ...form, client_type: v })}>
+                      <SelectTrigger data-testid="cli-type"><SelectValue placeholder="Select type" /></SelectTrigger>
+                      <SelectContent>
+                        {visibleTypes.map((t) => (
+                          <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} data-testid="cli-email" /></div>
@@ -261,12 +294,12 @@ function SuperAdminPeople({ pageScope }) {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <Label>Office</Label>
-                        <Select value={form.office || ""} onValueChange={(v) => setForm({ ...form, office: v })}>
-                          <SelectTrigger data-testid="cli-office"><SelectValue placeholder="Pick office" /></SelectTrigger>
+                        <Label>Blood Group</Label>
+                        <Select value={form.blood_group || ""} onValueChange={(v) => setForm({ ...form, blood_group: v })}>
+                          <SelectTrigger data-testid="cli-blood-group"><SelectValue placeholder="Select blood group" /></SelectTrigger>
                           <SelectContent>
-                            {OFFICES.map((o) => (
-                              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                            {BLOOD_GROUPS.map((b) => (
+                              <SelectItem key={b} value={b}>{b}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -289,7 +322,7 @@ function SuperAdminPeople({ pageScope }) {
                 ) : (
                   <div><Label>Company</Label><Input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} data-testid="cli-company" /></div>
                 )}
-                <div data-testid="cli-home-office-row">
+                <div data-testid="cli-home-office-row" className={isEmployees ? "hidden" : ""}>
                   <Label>
                     Visible to office{" "}
                     <span className="text-xs text-muted-foreground font-normal">
@@ -381,9 +414,18 @@ function ClientCard({ c, allowEdit, openEdit, remove }) {
         </div>
       </div>
       <div className="mt-3 flex items-center gap-2 flex-wrap">
-        <span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded ${TYPE_BADGE[c.client_type] || "bg-muted text-foreground"}`}>
-          {clientTypeLabel(c.client_type)}
-        </span>
+        {c.client_type === "staff" && c.emp_type ? (
+          <span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded ${c.emp_type === "admin" ? "bg-rose-100/60 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400" : "bg-orange-100/60 dark:bg-orange-500/15 text-orange-700 dark:text-orange-400"}`}>
+            {empTypeLabel(c.emp_type)}
+          </span>
+        ) : (
+          <span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded ${TYPE_BADGE[c.client_type] || "bg-muted text-foreground"}`}>
+            {clientTypeLabel(c.client_type)}
+          </span>
+        )}
+        {c.blood_group && (
+          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-muted text-foreground">Blood {c.blood_group}</span>
+        )}
         {c._creator_office && (
           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider bg-orange-100/60 dark:bg-orange-500/15 text-orange-700 dark:text-orange-400" data-testid={`cli-creator-${c.id}`}>
             <Buildings size={11} weight="duotone" /> {c._creator_office.replace("KM_", "KM ")}

@@ -135,6 +135,10 @@ class ClientIn(BaseModel):
     address: Optional[str] = None
     place: Optional[str] = None
     photo_url: Optional[str] = None  # relative /api/files/... path
+    # CRM employee fields: emp_type is the intended access level for a login
+    # created from this employee ("user" | "admin"); blood_group is free-form.
+    emp_type: Optional[str] = None
+    blood_group: Optional[str] = None
     # Cross-user visibility: when set to KM_BLR / KM_TCR / KM_KMLY, all office
     # admins of that office see the record. "ALL" → every office admin sees it.
     # Office admins always have this overridden server-side to their own office.

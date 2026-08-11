@@ -105,6 +105,20 @@ interdependencies; can be pruned later if desired).
   Github + redeploy of BOTH frontend (public assets) and backend (branding default).
 
 ## Backlog / Remaining (P1/P2)
+- 2026-06: **Roles/Employees/CRM-nav refinements (3 changes).**
+  (1) Create User (`CreateUserDialog.jsx`) is now employee-driven: pick an existing
+  Employee to grant a login (auto-fills name/email), role options reduced to **User**
+  (=user) and **Admin** (=super_admin), and the role auto-derives from the employee's
+  type (overridable). Backend `users.py` create now accepts linking employee client-types
+  (staff/km_*) for both user and admin roles.
+  (2) Add Employee form (`Clients.jsx` SuperAdminPeople): **Type** = "User (Employees)" /
+  "Admin" (Admin visible only to super_admin), **Blood Group** dropdown replaces the Office
+  field, and the "Visible to office" row was removed; employees are stored as
+  `client_type:"staff"` with new `emp_type` + `blood_group` fields (added to `ClientIn`).
+  (3) The "CRM / Leads" nav split into **Campaign** (`/campaign` → `Campaign.jsx`,
+  CampaignsPanel) and **Leads** (`/leads` → `Leads.jsx`, all-leads board), Campaign first;
+  staff still see a single "Leads". Verified by testing_agent iteration_4 (100% frontend)
+  + create-employee/create-user flow verified via curl.
 - 2026-06: **Overview/Employees/Team/Settings refinements (5 changes).**
   (1) Main Overview (`Dashboard.jsx`) now shows the CRM overview content moved from the
   Leads "Overview" tab (StaffPerformancePanel, TodayVisitsPanel, CrmAnalytics) + super-admin

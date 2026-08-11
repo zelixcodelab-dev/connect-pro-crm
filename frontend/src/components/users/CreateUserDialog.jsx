@@ -10,82 +10,64 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { CheckCircle, UserPlus, Eye, EyeSlash, ShieldCheck } from "@phosphor-icons/react";
+import { UserPlus, Eye, EyeSlash, ShieldCheck, CheckCircle } from "@phosphor-icons/react";
 
-const OFFICE_OPTIONS = [
-  { value: "KM_BLR", label: "KM BLR" },
-  { value: "KM_TCR", label: "KM TCR" },
-  { value: "KM_KMLY", label: "KM KMLY" },
-];
+// Employee client-types that can be granted a login.
+const EMPLOYEE_TYPES = ["staff", "km_blr_office", "km_tcr_office", "km_kmly_office"];
 
 const emptyNewUser = () => ({
-  email: "", password: "", name: "",
-  role: "user", office: "KM_BLR", currency: "INR",
-  linked_client_id: "",
+  email: "", password: "", name: "", role: "user", currency: "INR", linked_client_id: "",
 });
 
-// Employee client-types that can be given a login (see Employees page).
-const EMPLOYEE_TYPES = ["staff", "km_blr_office", "km_tcr_office", "km_kmly_office"];
-const EMP_TYPE_LABEL = {
-  staff: "Staff",
-  km_blr_office: "KM BLR Office",
-  km_tcr_office: "KM TCR Office",
-  km_kmly_office: "KM KMLY Office",
-};
-
-/** Create-user dialog. Self-contained — owns its form state, lazy-loads
- * external clients when role flips to "user", and calls onCreated() with
- * the new user payload so the parent can refresh its roster.
- */
+/** Create-user dialog. You pick an existing Employee to give them a login;
+ *  their name/email auto-fill and the role follows the employee's type
+ *  (User → user, Admin → full company admin). You can override the role. */
 export default function CreateUserDialog({ open, onOpenChange, onCreated }) {
   const [form, setForm] = useState(emptyNewUser);
   const [saving, setSaving] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
-  const [externalClients, setExternalClients] = useState([]);
-  const [externalLoaded, setExternalLoaded] = useState(false);
-  const [linkedClientSearch, setLinkedClientSearch] = useState("");
+  const [employees, setEmployees] = useState([]);
+  const [empLoaded, setEmpLoaded] = useState(false);
+  const [empSearch, setEmpSearch] = useState("");
 
-  // Reset form whenever the dialog reopens
   useEffect(() => {
-    if (open) {
-      setForm(emptyNewUser());
-      setShowPwd(false);
-      setLinkedClientSearch("");
-    }
+    if (open) { setForm(emptyNewUser()); setShowPwd(false); setEmpSearch(""); }
   }, [open]);
 
-  // Lazy-load employees the FIRST time role flips to "user". Cached after that.
   useEffect(() => {
-    if (form.role !== "user" || externalLoaded) return;
+    if (!open) return;
     let cancelled = false;
     (async () => {
       try {
         const { data } = await api.get("/clients");
         if (cancelled) return;
-        const employees = (data || []).filter((c) => EMPLOYEE_TYPES.includes(c.client_type));
-        setExternalClients(employees);
-        setExternalLoaded(true);
+        setEmployees((data || []).filter((c) => EMPLOYEE_TYPES.includes(c.client_type)));
+        setEmpLoaded(true);
       } catch (err) {
         console.error("[users] failed to load employees:", err?.message || err);
       }
     })();
     return () => { cancelled = true; };
-  }, [form.role, externalLoaded]);
+  }, [open]);
+
+  const pickEmployee = (id) => {
+    const emp = employees.find((x) => x.id === id);
+    setForm((f) => ({
+      ...f,
+      linked_client_id: id,
+      name: emp?.name || f.name,
+      email: emp?.email || f.email,
+      role: emp?.emp_type === "admin" ? "super_admin" : "user",
+    }));
+  };
 
   const submit = async (e) => {
     e?.preventDefault();
+    if (!form.linked_client_id) { toast.error("Pick an employee to give login access"); return; }
     if (!form.email.trim() || !form.password || !form.name.trim()) {
-      toast.error("Email, password and name are required"); return;
+      toast.error("Employee, email and password are required"); return;
     }
-    if (form.password.length < 6) {
-      toast.error("Password must be at least 6 characters"); return;
-    }
-    if (form.role === "office_admin" && !form.office) {
-      toast.error("Pick the office for the office admin"); return;
-    }
-    if (form.role === "user" && !form.linked_client_id) {
-      toast.error("Pick the client this user account is linked to"); return;
-    }
+    if (form.password.length < 6) { toast.error("Password must be at least 6 characters"); return; }
     setSaving(true);
     try {
       const payload = {
@@ -94,8 +76,7 @@ export default function CreateUserDialog({ open, onOpenChange, onCreated }) {
         name: form.name.trim(),
         role: form.role,
         currency: form.currency || "INR",
-        ...(form.role === "office_admin" ? { office: form.office } : {}),
-        ...(form.role === "user" && form.linked_client_id ? { linked_client_id: form.linked_client_id } : {}),
+        linked_client_id: form.linked_client_id,
       };
       const { data } = await api.post("/users", payload);
       toast.success(`${data.name} created · can sign in immediately`);
@@ -108,6 +89,8 @@ export default function CreateUserDialog({ open, onOpenChange, onCreated }) {
     }
   };
 
+  const isAdmin = form.role === "super_admin";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg" data-testid="create-user-dialog">
@@ -117,159 +100,108 @@ export default function CreateUserDialog({ open, onOpenChange, onCreated }) {
             Create user
           </DialogTitle>
           <DialogDescription>
-            Add a user directly — they'll be approved immediately and can sign in with the password you set.
+            Give an employee login access — pick them below, set a password, and choose their access level.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <Label>Full name <span className="text-rose-600">*</span></Label>
-            {form.role === "user" ? (
-              <>
-                <Select
-                  value={form.linked_client_id || ""}
-                  onValueChange={(id) => {
-                    const c = externalClients.find((x) => x.id === id);
-                    setForm((f) => ({
-                      ...f,
-                      linked_client_id: id,
-                      name: c?.name || f.name,
-                      email: c?.email || f.email,
-                    }));
-                  }}
-                >
-                  <SelectTrigger data-testid="cu-linked-client" className="w-full">
-                    <SelectValue placeholder={externalLoaded ? "Select an employee…" : "Loading employees…"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <div className="px-2 pt-1 pb-2">
-                      <Input
-                        value={linkedClientSearch}
-                        onChange={(e) => setLinkedClientSearch(e.target.value)}
-                        placeholder="Search employees by name"
-                        className="h-8 text-sm"
-                        data-testid="cu-linked-client-search"
-                        onKeyDown={(e) => e.stopPropagation()}
-                      />
-                    </div>
-                    {externalClients
-                      .filter((c) => !linkedClientSearch || c.name.toLowerCase().includes(linkedClientSearch.toLowerCase()))
-                      .map((c) => (
-                        <SelectItem key={c.id} value={c.id} data-testid={`cu-linked-client-opt-${c.id}`}>
-                          <div className="flex flex-col">
-                            <span>{c.name}</span>
-                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                              {EMP_TYPE_LABEL[c.client_type] || "Employee"}
-                              {c.email ? ` · ${c.email}` : ""}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    {externalLoaded && externalClients.length === 0 && (
-                      <div className="px-3 py-2 text-xs text-muted-foreground">
-                        No employees yet. Add one from the Employees page first.
+            <Label>Employee <span className="text-rose-600">*</span></Label>
+            <Select value={form.linked_client_id || ""} onValueChange={pickEmployee}>
+              <SelectTrigger data-testid="cu-linked-client" className="w-full">
+                <SelectValue placeholder={empLoaded ? "Select an employee…" : "Loading employees…"} />
+              </SelectTrigger>
+              <SelectContent>
+                <div className="px-2 pt-1 pb-2">
+                  <Input
+                    value={empSearch}
+                    onChange={(e) => setEmpSearch(e.target.value)}
+                    placeholder="Search employees by name"
+                    className="h-8 text-sm"
+                    data-testid="cu-linked-client-search"
+                    onKeyDown={(e) => e.stopPropagation()}
+                  />
+                </div>
+                {employees
+                  .filter((c) => !empSearch || c.name.toLowerCase().includes(empSearch.toLowerCase()))
+                  .map((c) => (
+                    <SelectItem key={c.id} value={c.id} data-testid={`cu-linked-client-opt-${c.id}`}>
+                      <div className="flex flex-col">
+                        <span>{c.name}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                          {c.emp_type === "admin" ? "Admin" : "Employee"}{c.email ? ` · ${c.email}` : ""}
+                        </span>
                       </div>
-                    )}
-                  </SelectContent>
-                </Select>
-                <p className="text-[11px] text-muted-foreground mt-1">
-                  Pick the employee this login belongs to. Their name and email are filled in automatically — just set a password below.
-                </p>
-              </>
-            ) : (
-              <Input
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Jane Doe"
-                data-testid="cu-name"
-                required
-              />
-            )}
+                    </SelectItem>
+                  ))}
+                {empLoaded && employees.length === 0 && (
+                  <div className="px-3 py-2 text-xs text-muted-foreground">
+                    No employees yet. Add one from the Employees page first.
+                  </div>
+                )}
+              </SelectContent>
+            </Select>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Their name and email fill in automatically — just set a password and confirm the role.
+            </p>
           </div>
+
+          <div>
+            <Label>Full name <span className="text-rose-600">*</span></Label>
+            <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Jane Doe" data-testid="cu-name" required />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label>Email <span className="text-rose-600">*</span></Label>
-              <Input
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder="user@company.com"
-                data-testid="cu-email"
-                required
-              />
+              <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="user@company.com" data-testid="cu-email" required />
             </div>
             <div>
               <Label>Password <span className="text-rose-600">*</span></Label>
               <div className="relative">
-                <Input
-                  type={showPwd ? "text" : "password"}
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="Min 6 characters"
-                  data-testid="cu-password"
-                  required
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPwd((v) => !v)}
-                  data-testid="cu-toggle-pwd"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
-                  title={showPwd ? "Hide password" : "Show password"}
-                >
+                <Input type={showPwd ? "text" : "password"} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Min 6 characters" data-testid="cu-password" required className="pr-10" />
+                <button type="button" onClick={() => setShowPwd((v) => !v)} data-testid="cu-toggle-pwd" className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1" title={showPwd ? "Hide password" : "Show password"}>
                   {showPwd ? <EyeSlash size={16} /> : <Eye size={16} />}
                 </button>
               </div>
               <p className="text-[11px] text-muted-foreground mt-1">Share this password with the user securely.</p>
             </div>
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label>Role <span className="text-rose-600">*</span></Label>
               <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
                 <SelectTrigger data-testid="cu-role"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="office_admin">Office Admin</SelectItem>
-                  <SelectItem value="super_admin">Super Admin</SelectItem>
-                  <SelectItem value="user">User (linked to an employee)</SelectItem>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="super_admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            {form.role === "office_admin" ? (
-              <div>
-                <Label>Office <span className="text-rose-600">*</span></Label>
-                <Select value={form.office} onValueChange={(v) => setForm({ ...form, office: v })}>
-                  <SelectTrigger data-testid="cu-office"><SelectValue placeholder="Pick office" /></SelectTrigger>
-                  <SelectContent>
-                    {OFFICE_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            ) : (
-              <div>
-                <Label>Currency</Label>
-                <Select value={form.currency} onValueChange={(v) => setForm({ ...form, currency: v })}>
-                  <SelectTrigger data-testid="cu-currency"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="INR">INR (₹)</SelectItem>
-                    <SelectItem value="USD">USD ($)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <div>
+              <Label>Currency</Label>
+              <Select value={form.currency} onValueChange={(v) => setForm({ ...form, currency: v })}>
+                <SelectTrigger data-testid="cu-currency"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="INR">INR (₹)</SelectItem>
+                  <SelectItem value="USD">USD ($)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          {form.role === "super_admin" ? (
+          {isAdmin ? (
             <div className="rounded-md border border-amber-500/30 bg-amber-gradient-soft p-3 text-xs flex items-start gap-2.5" data-testid="cu-super-warning">
               <ShieldCheck size={16} weight="fill" className="text-amber-700 dark:text-amber-400 mt-0.5 shrink-0" />
               <span className="text-foreground">
-                <strong>Super Admin</strong> gets full access to every page across all offices and can manage other users. Use sparingly.
+                <strong>Admin</strong> gets full access to every page and can manage other users. Use sparingly.
               </span>
             </div>
           ) : (
             <div className="rounded-md border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-500/10 p-3 text-xs flex items-start gap-2.5">
               <CheckCircle size={16} weight="fill" className="text-emerald-700 dark:text-emerald-400 mt-0.5 shrink-0" />
               <span className="text-foreground">
-                Office admins are created with <strong>all 8 pages set to edit</strong>. Fine-tune via the Permissions button on their card after creation.
+                <strong>User</strong> gets a standard login tied to this employee. Fine-tune access via the Permissions button after creation.
               </span>
             </div>
           )}

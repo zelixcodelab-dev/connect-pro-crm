@@ -13,7 +13,7 @@ import InstallPrompt from "@/components/InstallPrompt";
 import {
   House, Gear, SignOut, Sun, Moon, List as ListIcon, MagnifyingGlass,
   ShieldCheck, ChatCircleDots, ArrowUpRight,
-  Target, Handshake, UserCircle, ClockCounterClockwise,
+  Target, Handshake, UserCircle, ClockCounterClockwise, Megaphone,
 } from "@phosphor-icons/react";
 
 // Sidebar nav with role gating.
@@ -23,7 +23,8 @@ import {
 //     Omit (or set falsy) to hide the item from "user" role accounts.
 const ALL_NAV = [
   { to: "/", label: "Overview", icon: House, end: true, tid: "nav-overview", perm: "overview", module: "overview", userRoleAllowed: true },
-  { to: "/leads", label: "CRM / Leads", icon: Target, tid: "nav-leads", roles: ["super_admin", "office_admin", "staff"], perm: "leads", module: "leads", userRoleAllowed: false },
+  { to: "/campaign", label: "Campaign", icon: Megaphone, tid: "nav-campaign", roles: ["super_admin", "office_admin"], perm: "leads", module: "leads" },
+  { to: "/leads", label: "Leads", icon: Target, tid: "nav-leads", roles: ["super_admin", "office_admin", "staff"], perm: "leads", module: "leads", userRoleAllowed: false },
   { to: "/clients", label: "Employees", icon: Handshake, tid: "nav-clients", roles: ["super_admin", "office_admin"], perm: "clients", module: "clients" },
   { to: "/messages", label: "Messages", icon: ChatCircleDots, tid: "nav-messages", module: "messages", userRoleAllowed: true },
   { to: "/users", label: "Team", icon: ShieldCheck, tid: "nav-users", roles: ["super_admin"], module: "users" },
@@ -36,6 +37,7 @@ const PATH_MODULE = {
   "/messages": "messages",
   "/clients": "clients",
   "/leads": "leads",
+  "/campaign": "leads",
   "/activity": "activity",
 };
 
@@ -43,7 +45,8 @@ const PAGE_TITLES = {
   "/": "Overview",
   "/messages": "Messages",
   "/clients": "Employees",
-  "/leads": "CRM / Leads",
+  "/leads": "Leads",
+  "/campaign": "Campaign",
   "/settings": "Settings",
   "/users": "Team & approvals",
   "/branding": "Customize",
