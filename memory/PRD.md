@@ -105,6 +105,16 @@ interdependencies; can be pruned later if desired).
   Github + redeploy of BOTH frontend (public assets) and backend (branding default).
 
 ## Backlog / Remaining (P1/P2)
+- 2026-06: **Codebase cleanup.** Deleted 20 dead education/finance frontend pages that were
+  no longer routed or referenced anywhere (Accounts, Transactions, Invoices, Categories,
+  Colleges, AdmissionRevenue, Agents, AgentDetail, ExpenseRequests, Leave, LinkedUserLedger,
+  QuickEntry, Students, StudentDetail, StaffMembers, StaffStudents, StaffDashboard,
+  OfficeOverview, OfficeDashboard, PublicApplication). Verified refs=0 for each; frontend
+  compiles clean. **Backend routers intentionally RETAINED** — the kept CRM lead-convert flow
+  (`ConvertDialog`/`CollegeSelect` → `/colleges`, `/accounts`) and `clients.py`→`leave.py`
+  import chain still depend on them, so deleting them would break live CRM features. Optional
+  future P2: prune now-orphaned frontend component folders (student-detail/, admission-revenue/)
+  after confirming they aren't reached by any kept flow.
 - 2026-06: **Google Sheets lead-import integration.** Server-side Google OAuth 2.0 +
   Sheets/Drive (`routers/google_sheets.py`, prefix `/api`): connect-url, `/oauth/sheets/callback`,
   status, disconnect, create-template, list spreadsheets (Drive), list worksheets, fetch-leads
