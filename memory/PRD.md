@@ -115,10 +115,12 @@ interdependencies; can be pruned later if desired).
   `google_integration` (never sent to browser). Frontend: Settings → Integrations card
   (`GoogleSheetsIntegration.jsx`) and campaign-detail "Import from Sheets" dialog
   (`GoogleSheetsImportDialog.jsx`). Verified via curl + testing_agent iteration_5 (100% frontend,
-  no regressions). PENDING (needs user): paste GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET into
-  backend/.env (redirect URI already set for preview) and do the one-time "Connect Google".
-  NOT YET BUILT (P2): background auto-poll scheduler (only manual Sync Now today) + writing
-  status columns back to the sheet (spec marked optional).
+  no regressions). Credentials CONFIGURED (2026-06): GOOGLE_CLIENT_ID/SECRET added to
+  backend/.env, `/api/google/status` → configured:true, connect-url returns a valid Google
+  consent URL. The "Sign in with Google" button in Settings → Integrations is now live; the
+  user completes the one-time consent in-browser (OAuth consent screen is in Testing mode, so
+  only added Test users can sign in). NOT YET BUILT (P2): background auto-poll scheduler
+  (only manual Sync Now today) + writing status columns back to the sheet (spec optional).
 - 2026-06: **Roles/Employees/CRM-nav refinements (3 changes).**
   (1) Create User (`CreateUserDialog.jsx`) is now employee-driven: pick an existing
   Employee to grant a login (auto-fills name/email), role options reduced to **User**

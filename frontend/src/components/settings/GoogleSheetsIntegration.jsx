@@ -4,7 +4,7 @@ import api, { formatApiError } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { GoogleLogo, CheckCircle, PlugsConnected, Plugs, FileArrowDown, ArrowSquareOut } from "@phosphor-icons/react";
+import { GoogleLogo, CheckCircle, Plugs, FileArrowDown, ArrowSquareOut } from "@phosphor-icons/react";
 
 export default function GoogleSheetsIntegration() {
   const [status, setStatus] = useState(null);
@@ -104,9 +104,9 @@ export default function GoogleSheetsIntegration() {
           )}
 
           <div className="mt-4 flex flex-wrap gap-2">
-            {status?.configured && !connected && (
+            {!connected && (
               <Button onClick={connect} disabled={busy} className="btn-amber border-0" data-testid="gs-connect-btn">
-                <PlugsConnected size={16} className="mr-1.5" /> {busy ? "Redirecting…" : "Connect Google"}
+                <GoogleLogo size={16} weight="bold" className="mr-1.5" /> {busy ? "Redirecting…" : "Sign in with Google"}
               </Button>
             )}
             {connected && (
