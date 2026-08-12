@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import StaffProfile from "@/pages/StaffProfile";
 import ChangePassword from "@/components/settings/ChangePassword";
+import GoogleSheetsIntegration from "@/components/settings/GoogleSheetsIntegration";
 import Branding from "@/pages/Branding";
 
 export default function Settings() {
@@ -79,6 +80,18 @@ function WorkspaceSettings({ user, updateProfile }) {
 
         <ChangePassword />
       </div>
+
+      {isSuper && (
+        <section className="space-y-4" data-testid="settings-integrations-section">
+          <div>
+            <p className="label-eyebrow">Integrations</p>
+            <h2 className="font-display text-xl sm:text-2xl tracking-tight mt-1">Connected apps</h2>
+          </div>
+          <div className="max-w-2xl">
+            <GoogleSheetsIntegration />
+          </div>
+        </section>
+      )}
 
       {isSuper && (
         <section className="pt-2 border-t border-border" data-testid="settings-customize-section">

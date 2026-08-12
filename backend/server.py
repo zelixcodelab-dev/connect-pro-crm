@@ -22,6 +22,7 @@ from routers import auth, accounts, clients, categories, transactions, invoices,
 from routers import platform as platform_router
 from routers import branding as branding_router
 from routers import pipeline as pipeline_router
+from routers import google_sheets as google_sheets_router
 
 
 logging.basicConfig(level=logging.INFO)
@@ -58,6 +59,7 @@ app.include_router(activity.router)
 app.include_router(platform_router.router)
 app.include_router(branding_router.router)
 app.include_router(pipeline_router.router)
+app.include_router(google_sheets_router.router)
 
 # Health endpoint
 health = APIRouter(prefix="/api", tags=["health"])

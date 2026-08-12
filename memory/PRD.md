@@ -105,6 +105,20 @@ interdependencies; can be pruned later if desired).
   Github + redeploy of BOTH frontend (public assets) and backend (branding default).
 
 ## Backlog / Remaining (P1/P2)
+- 2026-06: **Google Sheets lead-import integration.** Server-side Google OAuth 2.0 +
+  Sheets/Drive (`routers/google_sheets.py`, prefix `/api`): connect-url, `/oauth/sheets/callback`,
+  status, disconnect, create-template, list spreadsheets (Drive), list worksheets, fetch-leads
+  (read → validate name/phone + Indian phone normalize + email regex → dedup vs CRM/campaign/
+  prior-sheet via row_hash → preview), import (create/reuse leads, attach to campaign, records in
+  `google_sheet_import` + `google_import_history`), config + manual `/google/sync` (Sync Now),
+  imports history. Reuses `_normalize_phone`/`LEAD_SOURCES`. Tokens stored in tenant DB
+  `google_integration` (never sent to browser). Frontend: Settings → Integrations card
+  (`GoogleSheetsIntegration.jsx`) and campaign-detail "Import from Sheets" dialog
+  (`GoogleSheetsImportDialog.jsx`). Verified via curl + testing_agent iteration_5 (100% frontend,
+  no regressions). PENDING (needs user): paste GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET into
+  backend/.env (redirect URI already set for preview) and do the one-time "Connect Google".
+  NOT YET BUILT (P2): background auto-poll scheduler (only manual Sync Now today) + writing
+  status columns back to the sheet (spec marked optional).
 - 2026-06: **Roles/Employees/CRM-nav refinements (3 changes).**
   (1) Create User (`CreateUserDialog.jsx`) is now employee-driven: pick an existing
   Employee to grant a login (auto-fills name/email), role options reduced to **User**

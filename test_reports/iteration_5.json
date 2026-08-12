@@ -1,0 +1,41 @@
+{
+  "summary": "Frontend-only regression + Google Sheets integration UI test. All required data-testids render and graceful 'not configured/not connected' states are correctly shown. Existing manual/CSV flows remain intact. Campaign wizard (3-step) creation + open + delete works end-to-end.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/settings_integrations.png",
+    "/app/test_reports/campaign_detail2.png",
+    "/app/test_reports/gs_dialog2.png"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "GoogleSheetsImportDialog / GoogleSheetsIntegration render safely under 'not configured' path — verified visually.",
+    "Note (informational): Console shows 401 on /api/auth/me before login — expected pre-auth behaviour; no user-visible impact."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (skipped per request)", "frontend": "100%"},
+  "test_credentials": "admin@educonnect.app / Admin@12345 (works)",
+  "seed_data_creation": "Created and deleted TEST_GS_Campaign (via 3-step wizard) during testing; environment left clean.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Campaign creation is a 3-step wizard: campaign-name-input on step1 → campaign-next-btn → step2 (campaign-office-select/campaign-owner-select) → campaign-next-btn → step3 → campaign-launch-btn. After launch, list is empty view but the newly created campaign auto-opens (campaign-detail testid present) with header buttons: campaign-add-leads-btn, campaign-upload-btn, campaign-google-import-btn, campaign-distribute-btn, campaign-edit-btn, campaign-delete-btn. GS import dialog shows [data-testid=gs-import-not-connected] with copy 'No Google account connected. Connect one in Settings → Integrations → Google Sheets'.",
+  "verified_checks": [
+    "settings-integrations-section renders",
+    "google-sheets-integration card renders",
+    "gs-status-disconnected badge visible",
+    "gs-not-configured note visible",
+    "required-columns hint (name · phone · email · course · place · source · notes) present",
+    "change-password-card renders below integrations",
+    "settings-customize-section renders",
+    "campaign-create-btn works (3-step wizard)",
+    "campaign detail header shows campaign-google-import-btn, campaign-add-leads-btn, campaign-upload-btn, campaign-distribute-btn",
+    "gs-import-dialog opens and gs-import-not-connected visible",
+    "campaign-upload-btn opens CSV dialog",
+    "campaign-add-leads-btn opens Add-leads dialog",
+    "campaign-delete-btn removes campaign successfully"
+  ]
+}
