@@ -54,6 +54,6 @@ export async function unsubscribeFromPush() {
   if (!sub) return;
   try {
     await api.delete(`/push/unsubscribe?endpoint=${encodeURIComponent(sub.endpoint)}`);
-  } catch (_) { /* ignore */ }
+  } catch (_) { console.debug("[push] server unsubscribe failed (continuing to unsubscribe locally)"); }
   await sub.unsubscribe();
 }

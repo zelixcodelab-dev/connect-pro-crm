@@ -32,6 +32,7 @@ export function AuthProvider({ children }) {
       // Keep the current session as-is. The next request that ACTUALLY
       // matters (user-initiated navigation / mutation) will surface a real
       // error if the session is genuinely dead.
+      console.debug("[auth] silent refresh skipped (transient /auth/me failure)");
     }
   }, []);
 

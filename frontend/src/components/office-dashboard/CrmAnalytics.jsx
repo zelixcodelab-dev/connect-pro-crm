@@ -140,7 +140,7 @@ export default function CrmAnalytics({ office = null }) {
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={course} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} innerRadius={48} paddingAngle={2}>
-                {course.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                {course.map((c, i) => <Cell key={c.name || `course-${i}`} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
               </Pie>
               <Tooltip contentStyle={tooltipStyle} />
               <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
@@ -155,7 +155,7 @@ export default function CrmAnalytics({ office = null }) {
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={lost} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} innerRadius={48} paddingAngle={2}>
-                {lost.map((_, i) => <Cell key={i} fill={PIE_COLORS[(i + 4) % PIE_COLORS.length]} />)}
+                {lost.map((l, i) => <Cell key={l.name || `lost-${i}`} fill={PIE_COLORS[(i + 4) % PIE_COLORS.length]} />)}
               </Pie>
               <Tooltip contentStyle={tooltipStyle} />
               <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />

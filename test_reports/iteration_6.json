@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend regression check after safe code-review fixes (stable pie chart keys in CrmAnalytics + catch-block error logging in officeFilter/push/auth/Leads). Executed E2E via Playwright as Company Admin. All target flows pass with no runtime/console errors related to the changes.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "login_dashboard": "PASS — admin@educonnect.app logs in, dashboard-page renders",
+    "crm_analytics": "PASS — crm-analytics visible; crm-course and crm-lost pie charts both rendered (count=1 each). No React key warnings.",
+    "sidebar_nav": "PASS — /campaign (campaign-page), /leads (leads-page), /clients, /users, /settings all load without crashes",
+    "settings_page": "PASS — profile, change password, google-sheets-integration all present",
+    "leads_deep_link": "PASS — /leads renders board without console errors from deep-link effect",
+    "console_errors": "Only 2 benign 401s (silent-refresh / push endpoints when unauthenticated). No pageerror, no React key warnings."
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Consider suppressing/handling the two 401s from silent-refresh + push subscribe when user is unauthenticated to keep the console clean (cosmetic).",
+    "/clients, /users, /settings pages lack a top-level data-testid (like clients-page) — minor testability gap."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "not tested (skipped per request)", "frontend": "100%" },
+  "test_credentials": "admin@educonnect.app / Admin@12345 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Regression pass after CrmAnalytics stable-key + catch-log fixes. All main CRM pages and dashboard analytics render cleanly. No regressions."
+}

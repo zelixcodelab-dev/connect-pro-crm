@@ -41,10 +41,10 @@ export default function Leads() {
             if (cancelled) return;
             const h = (all || []).find((l) => l.id === leadParam);
             if (h) setDeepLead(h);
-          }).catch(() => {});
+          }).catch((e) => console.error("[leads] deep-link fallback fetch failed:", e?.message || e));
         }
       })
-      .catch(() => {});
+      .catch((e) => console.error("[leads] deep-link fetch failed:", e?.message || e));
     return () => { cancelled = true; };
   }, [leadParam]);
 

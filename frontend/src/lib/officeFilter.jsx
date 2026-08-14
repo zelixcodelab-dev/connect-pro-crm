@@ -50,7 +50,7 @@ export function OfficeFilterProvider({ children }) {
     try {
       if (next) localStorage.setItem(STORAGE_KEY, next);
       else localStorage.removeItem(STORAGE_KEY);
-    } catch (e) { /* localStorage disabled — silently ignore */ }
+    } catch (e) { console.error("[officeFilter] localStorage write failed:", e?.message || e); }
   }, [isSuper]);
 
   const value = useMemo(() => ({ office, setOffice, isSuper }), [office, setOffice, isSuper]);
